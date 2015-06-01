@@ -4,10 +4,12 @@ var React = require('react');
 // Export the StockFighterApp component
 module.exports = StockFighterApp = React.createClass({
 
-    updateState: function(state) {
+    updateHello: function(data) {
 
         // Set application state
-        this.setState(state);
+        this.setState({
+            hello: data
+        });
     },
 
     // Set the initial component state
@@ -36,23 +38,23 @@ module.exports = StockFighterApp = React.createClass({
         var socket = io.connect();
 
         // On game event emission...
-        socket.on('game', function(data) {
+        socket.on('hello', function(data) {
 
             // Add a tweet to our queue
-            self.updateState(data);
+            self.updateHello(data.val);
 
         });
+        
+        socket.emit('hello2', {val: "fromclient"} );
+
 
     },
 
     // Render the component
     render: function() {
 
-        return ( < div className = "stockfighter-app" >
-            hello: {
-                this.state.hello
-            } < /div>
-        )
+        return <div className = "stockfighter-app">
+            hello is {this.state.hello}</div>;
 
     }
 

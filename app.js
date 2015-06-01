@@ -5,7 +5,7 @@ var StockFighterApp = require('./components/StockFighterApp.react');
 var initialState = JSON.parse(document.getElementById('initial-state').innerHTML)
 
 // Render the components, picking up where react left off on the server
-React.renderComponent(
-  <StockFighterApp game={initialState}/>,
+React.render(
+  <StockFighterApp hello={initialState}/>,
   document.getElementById('react-app')
 );

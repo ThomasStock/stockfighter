@@ -4,6 +4,7 @@
   "description": "yolo swag",
   "main": "japp.js",
   "dependencies": {
+    "body-parser": "^1.12.4",
     "express": "^5.0.0-alpha.1",
     "express-handlebars": "^2.0.1",
     "flux": "^2.0.3",

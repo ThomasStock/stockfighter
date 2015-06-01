@@ -5,10 +5,12 @@ var React = require('react');
 // Export the StockFighterApp component
 module.exports = StockFighterApp = React.createClass({displayName: "StockFighterApp",
 
-    updateState: function(state) {
+    updateHello: function(data) {
 
         // Set application state
-        this.setState(state);
+        this.setState({
+            hello: data
+        });
     },
 
     // Set the initial component state
@@ -37,23 +39,23 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
         var socket = io.connect();
 
         // On game event emission...
-        socket.on('game', function(data) {
+        socket.on('hello', function(data) {
 
             // Add a tweet to our queue
-            self.updateState(data);
+            self.updateHello(data.val);
 
         });
+        
+        socket.emit('hello2', {val: "fromclient"} );
+
 
     },
 
     // Render the component
     render: function() {
 
-        return ( React.createElement("div", {className: "stockfighter-app"}, 
-            "hello: ", 
-                this.state.hello, 
-            " ")
-        )
+        return React.createElement("div", {className: "stockfighter-app"}, 
+            "hello is ", this.state.hello);
 
     }
 
@@ -18255,8 +18257,8 @@ var StockFighterApp = require('./components/StockFighterApp.react');
 var initialState = JSON.parse(document.getElementById('initial-state').innerHTML)
 
 // Render the components, picking up where react left off on the server
-React.renderComponent(
-  React.createElement(StockFighterApp, {game: initialState}),
+React.render(
+  React.createElement(StockFighterApp, {hello: initialState}),
   document.getElementById('react-app')
 );
 
