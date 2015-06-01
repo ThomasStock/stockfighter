@@ -1,5 +1,5 @@
 var React = require('react');
-
+var World = require('./World.react.js');
 
 // Export the StockFighterApp component
 module.exports = StockFighterApp = React.createClass({
@@ -53,9 +53,11 @@ module.exports = StockFighterApp = React.createClass({
     // Render the component
     render: function() {
 
-        return <div className = "stockfighter-app">
-            hello is {this.state.hello}</div>;
-
+        return (
+            <div className = "stockfighter-app">
+                <World hello={this.state.hello} />
+            </div>
+        )
     }
 
 });
