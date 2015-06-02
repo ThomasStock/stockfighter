@@ -5,34 +5,22 @@ var World = require('./World.react.js');
 // Export the StockFighterApp component
 module.exports = StockFighterApp = React.createClass({displayName: "StockFighterApp",
 
-    updateHello: function(data) {
-
-        // Set application state
-        this.setState({
-            hello: data
-        });
-    },
-
     // Set the initial component state
     getInitialState: function(props) {
 
         props = props || this.props;
 
         // Set initial application state using props
-        return {
-            hello: props.hello,
-        };
+        return props;
 
     },
 
-    componentWillReceiveProps: function(newProps, oldProps) {
-        this.setState(this.getInitialState(newProps));
-    },
+
 
     // Called directly after component rendering, only on client
     componentDidMount: function() {
 
-        // Preserve self reference
+       /* // Preserve self reference
         var self = this;
 
         // Initialize socket.io
@@ -46,7 +34,7 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
 
         });
         
-        socket.emit('hello2', {val: "fromclient"} );
+        socket.emit('hello2', {val: "fromclient"} );*/
 
 
     },
@@ -56,7 +44,7 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
 
         return (
             React.createElement("div", {className: "stockfighter-app"}, 
-                React.createElement(World, {hello: this.state.hello})
+                React.createElement(World, {worldState: this.state.worldState})
             )
         )
     }
@@ -73,7 +61,7 @@ module.exports = World = React.createClass({displayName: "World",
     render: function() {
 
         return (
-            React.createElement("div", null, this.props.hello)
+            React.createElement("div", null, this.props.worldState.hello)
         )
     }
 
@@ -19898,7 +19886,7 @@ var initialState = JSON.parse(document.getElementById('initial-state').innerHTML
 
 // Render the components, picking up where react left off on the server
 React.render(
-  React.createElement(StockFighterApp, {hello: initialState.hello}),
+  React.createElement(StockFighterApp, {worldState: initialState}), 
   document.getElementById('react-app')
 );
 

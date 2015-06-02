@@ -3,7 +3,8 @@ var express = require('express'),
   exphbs = require('express-handlebars'),
   http = require('http'),
   bodyParser = require('body-parser'),
-  routes = require('./routes');
+  routes = require('./routes'),
+  WorldState = require('./models/WorldState');
 
 // Create an express instance and set a port variable
 var app = express();
@@ -22,7 +23,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-
 // Set /public as our static content dir
 app.use("/", express.static(__dirname + "/public/"));
 
@@ -30,6 +30,11 @@ app.use("/", express.static(__dirname + "/public/"));
 var server = http.createServer(app).listen(port, function() {
   console.log('Express server listening on port ' + port);
 });
+
+
+var worldState = new WorldState();
+worldState.log();
+
 
 // Initialize socket.io
 //var io = require('socket.io').listen(server);
@@ -42,10 +47,8 @@ io.on('connection', function (socket) {
   });
 });
 
-
-
 // Index Route
-app.get('/', routes.index);
+app.get('/', routes.index(worldState));
 
 // Index Route
 app.post('/hello', routes.hello(io));

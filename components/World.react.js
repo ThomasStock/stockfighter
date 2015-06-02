@@ -7,7 +7,7 @@ module.exports = World = React.createClass({
     render: function() {
 
         return (
-            <div>{this.props.hello}</div>
+            <div>{this.props.worldState.hello}</div>
         )
     }
 

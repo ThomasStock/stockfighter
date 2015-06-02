@@ -4,34 +4,22 @@ var World = require('./World.react.js');
 // Export the StockFighterApp component
 module.exports = StockFighterApp = React.createClass({
 
-    updateHello: function(data) {
-
-        // Set application state
-        this.setState({
-            hello: data
-        });
-    },
-
     // Set the initial component state
     getInitialState: function(props) {
 
         props = props || this.props;
 
         // Set initial application state using props
-        return {
-            hello: props.hello,
-        };
+        return props;
 
     },
 
-    componentWillReceiveProps: function(newProps, oldProps) {
-        this.setState(this.getInitialState(newProps));
-    },
+
 
     // Called directly after component rendering, only on client
     componentDidMount: function() {
 
-        // Preserve self reference
+       /* // Preserve self reference
         var self = this;
 
         // Initialize socket.io
@@ -45,7 +33,7 @@ module.exports = StockFighterApp = React.createClass({
 
         });
         
-        socket.emit('hello2', {val: "fromclient"} );
+        socket.emit('hello2', {val: "fromclient"} );*/
 
 
     },
@@ -55,7 +43,7 @@ module.exports = StockFighterApp = React.createClass({
 
         return (
             <div className = "stockfighter-app">
-                <World hello={this.state.hello} />
+                <World worldState={this.state.worldState} />
             </div>
         )
     }
