@@ -10,8 +10,6 @@ module.exports = {
 
         return function(req, res) {
             
-            worldState.log();
-
             // Render React to a string, passing in our fetched tweets
             var markup = React.renderToString(
                 StockFighterApp({
@@ -28,16 +26,6 @@ module.exports = {
         }
     },
 
-    hello: function(io) {
-
-        return function(req, res) {
-
-            io.sockets.emit('hello', {
-                val: req.body.hello
-            });
-
-        }
-    },
 
     play: function() {
 

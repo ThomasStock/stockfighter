@@ -2,7 +2,7 @@
   "name": "stockfighter",
   "version": "0.0.1",
   "description": "yolo swag",
-  "main": "japp.js",
+  "main": "app.js",
   "dependencies": {
     "body-parser": "^1.12.4",
     "express": "^5.0.0-alpha.1",

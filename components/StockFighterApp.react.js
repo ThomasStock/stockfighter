@@ -1,5 +1,6 @@
-var React = require('react');
-var World = require('./World.react.js');
+var React = require('react'),
+    World = require('./World.react.js'),
+    config = require('./../config');
 
 // Export the StockFighterApp component
 module.exports = StockFighterApp = React.createClass({
@@ -16,39 +17,23 @@ module.exports = StockFighterApp = React.createClass({
 
 
 
-    // Called directly after component rendering, only on client
+    // Called once, after initial rendering in the browser
     componentDidMount: function() {
 
-        // Preserve self reference
-        var self = this;
+        socket = io.connect();
 
-        // Initialize socket.io
-        var socket = io.connect();
-        
-        socket.on('connection', function(socket){
-          socket.join('view');
-        });
-        
+        //set event handler for when the server asks us to log something
+        socket.on(config.events.log, config.eventHandlers.onLog);
 
-        // On game event emission...
-        socket.on('tst2', function(data) {
-
-            // Add a tweet to our queue
-            self.setState({worldState: data});
-            
-            console.log("setting state after receiving tst2");
-
-        });
-        
-
+        //identify ourself to the server
+        socket.emit(config.events.identify, config.identifiers.viewer);
     },
 
     // Render the component
     render: function() {
 
-        return (
-            <div className = "stockfighter-app">
-                <World worldState={this.state.worldState} />
+        return ( <div className = "stockfighter-app">
+            <World worldState = {this.state.worldState}/> 
             </div>
         )
     }

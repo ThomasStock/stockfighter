@@ -1,13 +1,23 @@
-module.exports = function() {
+module.exports = function () {
     
-    var self = this;
-    
-    self.hello = "initial";
-    
-    self.timer = new Date();
-    
-    self.log = function() {
+    var worldState = {
         
-        console.log('hello is ' + self.hello + ' and timer is ' + self.timer.getTime());
-    };
+        player1: null,
+        
+        player2: null,
+        
+        viewers: [],
+        
+        match: null,
+        
+        log: log
+        
+    }
+    
+    return worldState;
+    
+    function log(){
+        
+        console.log("Worldstate: ");
+    }
 };
