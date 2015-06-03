@@ -50,7 +50,7 @@ io.on('connection', function (socket) {
 // Index Route
 app.get('/', routes.index(worldState));
 
-// Index Route
-app.post('/hello', routes.hello(io));
+// Play Route
+app.get('/play', routes.play());
 
 

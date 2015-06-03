@@ -1,7 +1,8 @@
 var JSX = require('node-jsx').install(),
     React = require('react'),
     io = require('socket.io'),
-    StockFighterApp = React.createFactory(require('./components/StockFighterApp.react'));
+    StockFighterApp = React.createFactory(require('./components/StockFighterApp.react')),
+    Controller = React.createFactory(require('./components/Controller.react'));
 
 module.exports = {
 
@@ -11,7 +12,9 @@ module.exports = {
 
             // Render React to a string, passing in our fetched tweets
             var markup = React.renderToString(
-                StockFighterApp({worldState: worldState})
+                StockFighterApp({
+                    worldState: worldState
+                })
             );
 
             // Render our 'home' template
@@ -32,5 +35,25 @@ module.exports = {
             });
 
         }
-    }
+    },
+
+    play: function() {
+
+        return function(req, res) {
+
+            // Render React to a string, passing in our fetched tweets
+            var markup = React.renderToString(
+                Controller()
+            );
+
+            // Render our 'home' template
+            res.render('home', {
+                markup: markup, // Pass rendered react markup
+                state: JSON.stringify({}),
+                layout: 'play'
+            });
+
+        }
+    },
+
 }
