@@ -4,6 +4,8 @@ var React = require('react'),
 // Export the StockFighterApp component
 module.exports = Controller = React.createClass({
     
+    socket: null,
+    
     left: function(){
       
       console.log("left");
@@ -14,25 +16,30 @@ module.exports = Controller = React.createClass({
     right: function(){
       
       console.log("right");
+      this.send();
         
     },
         
     jump: function(){
       
       console.log("jump");
+      this.send();
         
     },
     
     send: function(){
       
-       // Preserve self reference
-        var self = this;
-
-        // Initialize socket.io
-        var socket = io.connect();
-        
         socket.emit('tst', new WorldState());
         
+    },
+    
+     // Called directly after component rendering, only on client
+    componentDidMount: function() {
+
+        // Initialize socket.io
+        socket = io.connect();
+        
+
     },
 
     // Render the component

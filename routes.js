@@ -21,7 +21,7 @@ module.exports = {
 
             // Render our 'home' template
             res.render('home', {
-                markup: markup, // Pass rendered react markup
+                markup: "", // Pass rendered react markup
                 state: JSON.stringify(worldState) // Pass current state to client side
             });
 

@@ -5,6 +5,8 @@ var React = require('react'),
 // Export the StockFighterApp component
 module.exports = Controller = React.createClass({displayName: "Controller",
     
+    socket: null,
+    
     left: function(){
       
       console.log("left");
@@ -15,25 +17,30 @@ module.exports = Controller = React.createClass({displayName: "Controller",
     right: function(){
       
       console.log("right");
+      this.send();
         
     },
         
     jump: function(){
       
       console.log("jump");
+      this.send();
         
     },
     
     send: function(){
       
-       // Preserve self reference
-        var self = this;
-
-        // Initialize socket.io
-        var socket = io.connect();
-        
         socket.emit('tst', new WorldState());
         
+    },
+    
+     // Called directly after component rendering, only on client
+    componentDidMount: function() {
+
+        // Initialize socket.io
+        socket = io.connect();
+        
+
     },
 
     // Render the component
@@ -56,20 +63,18 @@ module.exports = Controller = React.createClass({displayName: "Controller",
 });
 
 },{"./../models/WorldState":2,"react":158}],2:[function(require,module,exports){
-var worldState = {
-
-    hello: "initial",
-
-    timer: new Date(),
-
-    log: function() {
-
-        console.log('hello is ' + this.hello + ' and timer is ' + this.timer.getTime());
-    }
-};
-
 module.exports = function() {
-    return worldState;
+    
+    var self = this;
+    
+    self.hello = "initial";
+    
+    self.timer = new Date();
+    
+    self.log = function() {
+        
+        console.log('hello is ' + self.hello + ' and timer is ' + self.timer.getTime());
+    };
 };
 
 },{}],3:[function(require,module,exports){

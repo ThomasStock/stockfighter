@@ -25,6 +25,11 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
 
         // Initialize socket.io
         var socket = io.connect();
+        
+        socket.on('connection', function(socket){
+          socket.join('view');
+        });
+        
 
         // On game event emission...
         socket.on('tst2', function(data) {

@@ -46,7 +46,8 @@ io.on('connection', function (socket) {
   console.log("on connection");
   socket.on("tst", function(data){
     console.log("on tst");
-    io.emit("tst2", data);
+    console.log(io.nsps['/'].adapter.rooms);
+    io.to('view').emit("tst2", data);
   });
 });
 
