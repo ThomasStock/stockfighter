@@ -20,22 +20,20 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
     // Called directly after component rendering, only on client
     componentDidMount: function() {
 
-       /* // Preserve self reference
+        // Preserve self reference
         var self = this;
 
         // Initialize socket.io
         var socket = io.connect();
 
         // On game event emission...
-        socket.on('hello', function(data) {
+        socket.on('tst2', function(data) {
 
             // Add a tweet to our queue
-            self.updateHello(data.val);
+            self.setState({worldState: data});
 
         });
         
-        socket.emit('hello2', {val: "fromclient"} );*/
-
 
     },
 
@@ -56,12 +54,23 @@ var React = require('react');
 
 // Export the StockFighterApp component
 module.exports = World = React.createClass({displayName: "World",
+    
+    getLatency: function(){
+      
+      return new Date().getTime() - new Date(this.props.worldState.timer).getTime();
+        
+    },
 
     // Render the component
     render: function() {
 
         return (
-            React.createElement("div", null, this.props.worldState.hello)
+            React.createElement("div", null, 
+            React.createElement("div", null, "Hello is ", this.props.worldState.hello, " and timer is ", new Date(this.props.worldState.timer).getTime()), 
+            React.createElement("div", null, "Current time is ", new Date().getTime()), 
+            React.createElement("div", null, "Latency is ", this.getLatency())
+            )
+            
         )
     }
 

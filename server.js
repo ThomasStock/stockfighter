@@ -42,8 +42,9 @@ var io = require('socket.io')(server);
 
 io.on('connection', function (socket) {
   console.log("on connection");
-  socket.on("hello2", function(data){
-    console.log("hello2 " + data.val);
+  socket.on("tst", function(data){
+    console.log("on tst");
+    io.emit("tst2", data);
   });
 });
 

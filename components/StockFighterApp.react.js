@@ -19,22 +19,20 @@ module.exports = StockFighterApp = React.createClass({
     // Called directly after component rendering, only on client
     componentDidMount: function() {
 
-       /* // Preserve self reference
+        // Preserve self reference
         var self = this;
 
         // Initialize socket.io
         var socket = io.connect();
 
         // On game event emission...
-        socket.on('hello', function(data) {
+        socket.on('tst2', function(data) {
 
             // Add a tweet to our queue
-            self.updateHello(data.val);
+            self.setState({worldState: data});
 
         });
         
-        socket.emit('hello2', {val: "fromclient"} );*/
-
 
     },
 

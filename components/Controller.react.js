@@ -1,4 +1,5 @@
-var React = require('react');
+var React = require('react'),
+    WorldState = require('./../models/WorldState');
 
 // Export the StockFighterApp component
 module.exports = Controller = React.createClass({
@@ -6,6 +7,7 @@ module.exports = Controller = React.createClass({
     left: function(){
       
       console.log("left");
+      this.send();
         
     },
         
@@ -18,6 +20,18 @@ module.exports = Controller = React.createClass({
     jump: function(){
       
       console.log("jump");
+        
+    },
+    
+    send: function(){
+      
+       // Preserve self reference
+        var self = this;
+
+        // Initialize socket.io
+        var socket = io.connect();
+        
+        socket.emit('tst', new WorldState());
         
     },
 
