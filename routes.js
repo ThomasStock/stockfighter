@@ -9,6 +9,8 @@ module.exports = {
     index: function(worldState) {
 
         return function(req, res) {
+            
+            worldState.log();
 
             // Render React to a string, passing in our fetched tweets
             var markup = React.renderToString(

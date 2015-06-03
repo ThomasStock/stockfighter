@@ -31,6 +31,8 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
 
             // Add a tweet to our queue
             self.setState({worldState: data});
+            
+            console.log("setting state after receiving tst2");
 
         });
         

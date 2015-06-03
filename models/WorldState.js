@@ -1,13 +1,15 @@
+var worldState = {
+
+    hello: "initial",
+
+    timer: new Date(),
+
+    log: function() {
+
+        console.log('hello is ' + this.hello + ' and timer is ' + this.timer.getTime());
+    }
+};
+
 module.exports = function() {
-    
-    var self = this;
-    
-    self.hello = "initial";
-    
-    self.timer = new Date();
-    
-    self.log = function() {
-        
-        console.log('hello is ' + self.hello + ' and timer is ' + self.timer.getTime());
-    };
+    return worldState;
 };

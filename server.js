@@ -34,6 +34,8 @@ var server = http.createServer(app).listen(port, function() {
 
 var worldState = new WorldState();
 worldState.log();
+worldState.hello = "bla";
+worldState.log();
 
 
 // Initialize socket.io
