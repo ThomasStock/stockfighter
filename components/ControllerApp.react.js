@@ -2,13 +2,13 @@ var React = require('react'),
     WorldState = require('./../models/WorldState'),
     config = require('./../config');
 
-// Export the StockFighterApp component
-module.exports = Controller = React.createClass({
+module.exports = ControllerApp = React.createClass({
     
     getInitialState: function() {
         return {
-            id: "pending..",
-            playerNumber: "pending.."
+            id: null,
+            playerNumber: null,
+            noMorePlayersNeeded: null
         };
     },
     
@@ -55,7 +55,7 @@ module.exports = Controller = React.createClass({
         
         console.log("no more players needed..");
         
-        this.setState({playerNumber: "NO"});
+        this.setState({noMorePlayersNeeded: true});
     },
     
     
@@ -85,28 +85,73 @@ module.exports = Controller = React.createClass({
 
         //identify ourself to the server
         socket.emit(config.events.identify, config.identifiers.controller);
-        
-
 
     },
 
     // Render the component
     render: function() {
         
+        var state = this.state;
+        
+        var playerInfo = function(){
+            
+            if(state.noMorePlayersNeeded){
+             
+                return (
+                    <div className="no-more-players-needed-message">
+                        Sorry, there were no more players needed in the current game.<br/>
+                        Try again later.
+                    </div>
+                );
+            }
+            
+            if(state.playerNumber == null){
+                
+                return (
+                    <div className="connecting-message">Connecting..</div>
+                );
+            }
+            
+            return (
+                <div className="player-info-data">
+                    <div className="connected-as-message">
+                        Connected as Player{state.playerNumber}!
+                    </div>
+                    <div className="socket-id-message">
+                        <small>Your socket id is: {state.id}</small>
+                    </div>
+                    
+                </div>
+            );
+            
+        }
+        
         var buttonStyle = {
             padding: '10px',
             margin: '10px'
         };
-
+        
+        var controls = function(){
+            
+            if(state.playerNumber != null){
+                
+                return (
+                    <div className="controller">
+                        <input type="button" style={buttonStyle} onClick={this.left} value="Left" ></input>
+                        <input type="button" style={buttonStyle} onClick={this.jump} value="Jump" ></input>
+                        <input type="button" style={buttonStyle} onClick={this.right} value="Right" ></input>
+                    </div>
+                );
+            }
+        }
+        
         return (
-            <div className="controller">
-                <input type="button" style={buttonStyle} onClick={this.left} value="Left" ></input>
-                <input type="button" style={buttonStyle} onClick={this.jump} value="Jump" ></input>
-                <input type="button" style={buttonStyle} onClick={this.right} value="Right" ></input>
-                <div>socket id: {this.state.id}</div>
-                <div>player: {this.state.playerNumber}</div>
+            <div className="controller-app">
+                {controls()}
+                {playerInfo()}
             </div>
         );
+
     }
 
 });

@@ -3,13 +3,13 @@ var React = require('react'),
     WorldState = require('./../models/WorldState'),
     config = require('./../config');
 
-// Export the StockFighterApp component
-module.exports = Controller = React.createClass({displayName: "Controller",
+module.exports = ControllerApp = React.createClass({displayName: "ControllerApp",
     
     getInitialState: function() {
         return {
-            id: "pending..",
-            playerNumber: "pending.."
+            id: null,
+            playerNumber: null,
+            noMorePlayersNeeded: null
         };
     },
     
@@ -56,7 +56,7 @@ module.exports = Controller = React.createClass({displayName: "Controller",
         
         console.log("no more players needed..");
         
-        this.setState({playerNumber: "NO"});
+        this.setState({noMorePlayersNeeded: true});
     },
     
     
@@ -86,28 +86,73 @@ module.exports = Controller = React.createClass({displayName: "Controller",
 
         //identify ourself to the server
         socket.emit(config.events.identify, config.identifiers.controller);
-        
-
 
     },
 
     // Render the component
     render: function() {
         
+        var state = this.state;
+        
+        var playerInfo = function(){
+            
+            if(state.noMorePlayersNeeded){
+             
+                return (
+                    React.createElement("div", {className: "no-more-players-needed-message"}, 
+                        "Sorry, there were no more players needed in the current game.", React.createElement("br", null), 
+                        "Try again later."
+                    )
+                );
+            }
+            
+            if(state.playerNumber == null){
+                
+                return (
+                    React.createElement("div", {className: "connecting-message"}, "Connecting..")
+                );
+            }
+            
+            return (
+                React.createElement("div", {className: "player-info-data"}, 
+                    React.createElement("div", {className: "connected-as-message"}, 
+                        "Connected as Player", state.playerNumber, "!"
+                    ), 
+                    React.createElement("div", {className: "socket-id-message"}, 
+                        React.createElement("small", null, "Your socket id is: ", state.id)
+                    )
+                    
+                )
+            );
+            
+        }
+        
         var buttonStyle = {
             padding: '10px',
             margin: '10px'
         };
-
+        
+        var controls = function(){
+            
+            if(state.playerNumber != null){
+                
+                return (
+                    React.createElement("div", {className: "controller"}, 
+                        React.createElement("input", {type: "button", style: buttonStyle, onClick: this.left, value: "Left"}), 
+                        React.createElement("input", {type: "button", style: buttonStyle, onClick: this.jump, value: "Jump"}), 
+                        React.createElement("input", {type: "button", style: buttonStyle, onClick: this.right, value: "Right"})
+                    )
+                );
+            }
+        }
+        
         return (
-            React.createElement("div", {className: "controller"}, 
-                React.createElement("input", {type: "button", style: buttonStyle, onClick: this.left, value: "Left"}), 
-                React.createElement("input", {type: "button", style: buttonStyle, onClick: this.jump, value: "Jump"}), 
-                React.createElement("input", {type: "button", style: buttonStyle, onClick: this.right, value: "Right"}), 
-                React.createElement("div", null, "socket id: ", this.state.id), 
-                React.createElement("div", null, "player: ", this.state.playerNumber)
+            React.createElement("div", {className: "controller-app"}, 
+                controls(), 
+                playerInfo()
             )
         );
+
     }
 
 });
@@ -139,7 +184,9 @@ module.exports = {
             
             console.log(data);
         }
-    }
+    },
+    
+    playUrl: "https://stockfighter-tstock.c9.io/play"
 }
 
 },{}],3:[function(require,module,exports){
@@ -19979,15 +20026,15 @@ module.exports = require('./lib/React');
 
 },{"./lib/React":32}],160:[function(require,module,exports){
 var React = require('react');
-var Controller = require('./components/Controller.react');
+var Controller = require('./components/ControllerApp.react');
 
 // Snag the initial state that was passed from the server side
 var initialState = JSON.parse(document.getElementById('initial-state').innerHTML);
 
 // Render the components, picking up where react left off on the server
 React.render(
-  React.createElement(Controller, null), 
+  React.createElement(ControllerApp, null), 
   document.getElementById('react-app')
 );
 
-},{"./components/Controller.react":1,"react":159}]},{},[160]);
+},{"./components/ControllerApp.react":1,"react":159}]},{},[160]);

@@ -1,6 +1,5 @@
 var React = require('react');
 
-// Export the StockFighterApp component
 module.exports = World = React.createClass({
     
     getLatency: function(){

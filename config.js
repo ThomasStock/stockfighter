@@ -24,5 +24,7 @@ module.exports = {
             
             console.log(data);
         }
-    }
+    },
+    
+    playUrl: "https://stockfighter-tstock.c9.io/play"
 }

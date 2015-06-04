@@ -86,7 +86,7 @@ io.on('connection', function(socket) {
           socket.emit(config.events.acceptedAsPlayer, 1);
 
           //broadcast to everyone that a player 1 has entered
-          io.emit(config.events.player1Joined, worldState.player1);
+          io.emit(config.events.player1Joined, worldState);
         }
         else //we need a player2..
         {
@@ -97,7 +97,7 @@ io.on('connection', function(socket) {
           socket.emit(config.events.acceptedAsPlayer, 2);
 
           //broadcast to everyone that a player 2 has entered
-          io.emit(config.events.player2Joined, worldState.player2);
+          io.emit(config.events.player2Joined, worldState);
         }
         
         //at this point we know a player joined the game. 
@@ -105,10 +105,18 @@ io.on('connection', function(socket) {
         if (worldState.player1 != null && worldState.player2 != null) {
          
           //let everyone know we can start the match
-          io.emit(config.events.matchStarting);
+          io.emit(config.events.matchStarting, worldState);
         }
+        
+        break;
     }
   });
+  
+  //when the socket emits a disconnect event..
+  socket.on("disconnect", function() {
+    
+  });
+  
 });
 
 // Index Route

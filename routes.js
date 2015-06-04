@@ -2,7 +2,7 @@ var JSX = require('node-jsx').install(),
     React = require('react'),
     io = require('socket.io'),
     StockFighterApp = React.createFactory(require('./components/StockFighterApp.react')),
-    Controller = React.createFactory(require('./components/Controller.react'));
+    ControllerApp = React.createFactory(require('./components/ControllerApp.react'));
 
 module.exports = {
 
@@ -33,7 +33,7 @@ module.exports = {
 
             // Render React to a string, passing in our fetched tweets
             var markup = React.renderToString(
-                Controller()
+                ControllerApp()
             );
 
             // Render our 'home' template
