@@ -1,3 +1,5 @@
+config = require('./../config');
+    
 module.exports = function () {
     
     var worldState = {
@@ -8,7 +10,7 @@ module.exports = function () {
         
         viewers: [],
         
-        match: null,
+        matchState: config.matchStates.waitingForPlayers,
         
         log: log
         

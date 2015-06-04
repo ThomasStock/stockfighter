@@ -38,10 +38,19 @@ module.exports = InfoScreen = React.createClass({
                 return <div>Player{playerNumber} connected!</div>
                 
             }
-        }
+        };
         
+        var gameStartMessage = function(){
+            
+            if(worldState.matchState == config.matchStates.matchStarting){
+                
+                return (
+                    <div>The game is about to start!</div>
+                );
+            }
+            
+        };
         
-
         return (   
             
             <div className="info-screen">
@@ -53,6 +62,7 @@ module.exports = InfoScreen = React.createClass({
                     {playerDiv(worldState.player1, 1)}
                     {playerDiv(worldState.player2, 2)}
                 </div>
+                {gameStartMessage()}
             </div>
         );
     }

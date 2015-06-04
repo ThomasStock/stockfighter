@@ -1,5 +1,5 @@
 var React = require('react'),
-    World = require('./World.react.js'),
+    Match = require('./Match.react.js'),
     InfoScreen = require('./InfoScreen.react.js'),
     config = require('./../config');
 
@@ -24,6 +24,15 @@ module.exports = StockFighterApp = React.createClass({
         
     },
     
+    //when the match is started
+    onMatchStarted: function(worldState){
+        
+        console.log("match has started");
+        
+        this.setState({worldState: worldState});
+        
+    },
+    
     //when player 1 joined
     onPlayer1Joined: function(worldState){
         
@@ -34,9 +43,18 @@ module.exports = StockFighterApp = React.createClass({
     },
     
     //when player 2 joined
-    onPlayer1Joined: function(worldState){
+    onPlayer2Joined: function(worldState){
         
         console.log("player 2 joined");
+        
+        this.setState({worldState: worldState});
+        
+    },
+    
+    //when a match ends
+    onMatchEnded: function(worldState){
+        
+        console.log("match ended");
         
         this.setState({worldState: worldState});
         
@@ -47,12 +65,12 @@ module.exports = StockFighterApp = React.createClass({
     componentDidMount: function() {
 
         socket = io.connect();
+        
+        //identify ourself to the server
+        socket.emit(config.events.identify, config.identifiers.viewer);
 
         //set event handler for when the server asks us to log something
         socket.on(config.events.log, config.eventHandlers.onLog);
-
-        //identify ourself to the server
-        socket.emit(config.events.identify, config.identifiers.viewer);
 
         //set event handler for when the server tells us player 1 joined
         socket.on(config.events.player1Joined, this.onPlayer1Joined);
@@ -63,18 +81,36 @@ module.exports = StockFighterApp = React.createClass({
         //set event handler for when the server tells us the match can start
         socket.on(config.events.matchStarting, this.onMatchStarting);
         
+        //set event handler for when the server tells us the match has started
+        socket.on(config.events.matchStarted, this.onMatchStarted);
+        
+        //set event handler for when the server tells us the match has started
+        socket.on(config.events.matchEnded, this.onMatchEnded);
+
     },
 
     // Render the component
     render: function() {
+        
+        var worldState = this.state.worldState;
+        
+        if(worldState.matchState == config.matchStates.waitingForPlayers
+        || worldState.matchState == config.matchStates.matchStarting){
+            
+            return <InfoScreen worldState={worldState}/>
+        }
+        
+        if(worldState.matchState == config.matchStates.matchStarted){
+            
+            return <Match worldState={worldState}/>
+        }
+        
+        if(!worldState.matchState){
+            
+            return <div>loading..</div>
+        }
 
-        return (         
-            
-            <div className="stockfighter-app">
-                <InfoScreen worldState={this.state.worldState}/> 
-            </div>
-            
-        );
+        return <div>unimplemented view for matchstate {worldState.matchState}</div>
     }
 
 });

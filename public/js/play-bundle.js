@@ -9,7 +9,9 @@ module.exports = ControllerApp = React.createClass({displayName: "ControllerApp"
         return {
             id: null,
             playerNumber: null,
-            noMorePlayersNeeded: null
+            noMorePlayersNeeded: null,
+            matchHasEnded: null,
+            disconnected: null
         };
     },
     
@@ -59,6 +61,15 @@ module.exports = ControllerApp = React.createClass({displayName: "ControllerApp"
         this.setState({noMorePlayersNeeded: true});
     },
     
+    //when a match ends
+    onMatchEnded: function(worldState){
+        
+        console.log("match ended");
+        
+        this.setState({matchHasEnded: true});
+        
+    },
+    
     
     // Called once, after initial rendering in the browser
     componentDidMount: function() {
@@ -72,6 +83,11 @@ module.exports = ControllerApp = React.createClass({displayName: "ControllerApp"
             self.setState({id: socket.id});
         });
         
+        socket.on("disconnect", function(){
+            
+            self.setState({disconnected: true});
+        });
+        
         //set event handler for when the server asks us to log something
         socket.on(config.events.log, config.eventHandlers.onLog);
         
@@ -83,6 +99,9 @@ module.exports = ControllerApp = React.createClass({displayName: "ControllerApp"
         
        //set event handler for when the server tells us we are denied as controller
         socket.on(config.events.noMorePlayersNeeded, this.onNoMorePlayersNeeded);
+        
+        //set event handler for when the server tells us the match has started
+        socket.on(config.events.matchEnded, this.onMatchEnded);
 
         //identify ourself to the server
         socket.emit(config.events.identify, config.identifiers.controller);
@@ -93,6 +112,11 @@ module.exports = ControllerApp = React.createClass({displayName: "ControllerApp"
     render: function() {
         
         var state = this.state;
+        
+        if(state.matchHasEnded){
+            
+            return React.createElement("div", null, "Thank you for playing");
+        }
         
         var playerInfo = function(){
             
@@ -125,6 +149,14 @@ module.exports = ControllerApp = React.createClass({displayName: "ControllerApp"
                 )
             );
             
+        };
+        
+        var disconnectedInfo = function(){
+            
+            if(state.disconnected){
+                
+                return React.createElement("div", null, "You have been disconnected.");
+            }
         }
         
         var buttonStyle = {
@@ -144,12 +176,13 @@ module.exports = ControllerApp = React.createClass({displayName: "ControllerApp"
                     )
                 );
             }
-        }
+        };
         
         return (
             React.createElement("div", {className: "controller-app"}, 
                 controls(), 
-                playerInfo()
+                playerInfo(), 
+                disconnectedInfo()
             )
         );
 
@@ -167,8 +200,11 @@ module.exports = {
         player1Joined: "player1Joined",
         player2Joined: "player2Joined",
         noMorePlayersNeeded: "noMorePlayersNeeded",
+        acceptedAsPlayer: "acceptedAsPlayer",
         matchStarting: "matchStarting",
-        acceptedAsPlayer: "acceptedAsPlayer"
+        matchStarted: "matchStarted",
+        requestEndMatch: "requestEndMatch",
+        matchEnded: "matchEnded",
     },
     
     identifiers: {
@@ -186,10 +222,20 @@ module.exports = {
         }
     },
     
+    matchStates: {
+      
+      waitingForPlayers: "waitingForPlayers",
+      matchStarting: "matchStarting",
+      matchStarted: "matchStarted",
+      matchEnded: "matchEnded"
+    },
+    
     playUrl: "https://stockfighter-tstock.c9.io/play"
 }
 
 },{}],3:[function(require,module,exports){
+config = require('./../config');
+    
 module.exports = function () {
     
     var worldState = {
@@ -200,7 +246,7 @@ module.exports = function () {
         
         viewers: [],
         
-        match: null,
+        matchState: config.matchStates.waitingForPlayers,
         
         log: log
         
@@ -214,7 +260,7 @@ module.exports = function () {
     }
 };
 
-},{}],4:[function(require,module,exports){
+},{"./../config":2}],4:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

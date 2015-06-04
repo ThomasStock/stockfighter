@@ -6,7 +6,8 @@ var express = require('express'),
   routes = require('./routes'),
   WorldState = require('./models/WorldState'),
   Player = require('./models/Player'),
-  config = require('./config');
+  config = require('./config'),
+  Match = require('./match');
 
 // Create an express instance and set a port variable
 var app = express();
@@ -103,12 +104,38 @@ io.on('connection', function(socket) {
         //at this point we know a player joined the game. 
         //check if we now have 2 players and can start the match
         if (worldState.player1 != null && worldState.player2 != null) {
+          
+          //update matchState
+          worldState.matchState = config.matchStates.matchStarting;
          
           //let everyone know we can start the match
           io.emit(config.events.matchStarting, worldState);
+          
+          //initialize a new match
+          var match = new Match(io, worldState);
+          
+          //start the match after 3 seconds
+          setTimeout(function(){ match.start(); }, 3000);
         }
         
         break;
+      case config.identifiers.viewer:
+        
+        //when the viewer requests the game to end.. 
+        socket.on(config.events.requestEndMatch, function(data) {
+          
+          //reset the game
+          
+          worldState.matchState = config.matchStates.waitingForPlayers;
+          worldState.player1 = null;
+          worldState.player2= null;
+          
+          io.emit(config.events.matchEnded, worldState);  
+          
+        });
+        
+        break;
+      
     }
   });
   

@@ -39,10 +39,19 @@ module.exports = InfoScreen = React.createClass({displayName: "InfoScreen",
                 return React.createElement("div", null, "Player", playerNumber, " connected!")
                 
             }
-        }
+        };
         
+        var gameStartMessage = function(){
+            
+            if(worldState.matchState == config.matchStates.matchStarting){
+                
+                return (
+                    React.createElement("div", null, "The game is about to start!")
+                );
+            }
+            
+        };
         
-
         return (   
             
             React.createElement("div", {className: "info-screen"}, 
@@ -53,7 +62,8 @@ module.exports = InfoScreen = React.createClass({displayName: "InfoScreen",
                 React.createElement("div", {className: "players"}, 
                     playerDiv(worldState.player1, 1), 
                     playerDiv(worldState.player2, 2)
-                )
+                ), 
+                gameStartMessage()
             )
         );
     }
@@ -62,7 +72,38 @@ module.exports = InfoScreen = React.createClass({displayName: "InfoScreen",
 
 },{"./../config":4,"react":160}],2:[function(require,module,exports){
 var React = require('react'),
-    World = require('./World.react.js'),
+    config = require('./../config');
+
+module.exports = Match = React.createClass({displayName: "Match",
+    
+    endMatch: function(){
+        
+        //request the server to end the match
+        socket.emit(config.events.requestEndMatch);
+    },
+    
+    // Render the component
+    render: function() {
+        
+        if(!this.props.isEndMatchRequested){
+            
+            return (
+                React.createElement("div", {className: "match-view"}, 
+                    React.createElement("div", null, "Imagine awesomeness."), React.createElement("br", null), 
+                    React.createElement("input", {type: "button", value: "End the match", onClick: this.endMatch})
+                )
+            );
+        }
+
+        return React.createElement("div", null, "ending match..");
+       
+    }
+
+});
+
+},{"./../config":4,"react":160}],3:[function(require,module,exports){
+var React = require('react'),
+    Match = require('./Match.react.js'),
     InfoScreen = require('./InfoScreen.react.js'),
     config = require('./../config');
 
@@ -87,6 +128,15 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
         
     },
     
+    //when the match is started
+    onMatchStarted: function(worldState){
+        
+        console.log("match has started");
+        
+        this.setState({worldState: worldState});
+        
+    },
+    
     //when player 1 joined
     onPlayer1Joined: function(worldState){
         
@@ -97,9 +147,18 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
     },
     
     //when player 2 joined
-    onPlayer1Joined: function(worldState){
+    onPlayer2Joined: function(worldState){
         
         console.log("player 2 joined");
+        
+        this.setState({worldState: worldState});
+        
+    },
+    
+    //when a match ends
+    onMatchEnded: function(worldState){
+        
+        console.log("match ended");
         
         this.setState({worldState: worldState});
         
@@ -110,12 +169,12 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
     componentDidMount: function() {
 
         socket = io.connect();
+        
+        //identify ourself to the server
+        socket.emit(config.events.identify, config.identifiers.viewer);
 
         //set event handler for when the server asks us to log something
         socket.on(config.events.log, config.eventHandlers.onLog);
-
-        //identify ourself to the server
-        socket.emit(config.events.identify, config.identifiers.viewer);
 
         //set event handler for when the server tells us player 1 joined
         socket.on(config.events.player1Joined, this.onPlayer1Joined);
@@ -126,49 +185,41 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
         //set event handler for when the server tells us the match can start
         socket.on(config.events.matchStarting, this.onMatchStarting);
         
-    },
-
-    // Render the component
-    render: function() {
-
-        return (         
-            
-            React.createElement("div", {className: "stockfighter-app"}, 
-                React.createElement(InfoScreen, {worldState: this.state.worldState})
-            )
-            
-        );
-    }
-
-});
-
-},{"./../config":4,"./InfoScreen.react.js":1,"./World.react.js":3,"react":160}],3:[function(require,module,exports){
-var React = require('react');
-
-module.exports = World = React.createClass({displayName: "World",
-    
-    getLatency: function(){
-      
-      return new Date().getTime() - new Date(this.props.worldState.timer).getTime();
+        //set event handler for when the server tells us the match has started
+        socket.on(config.events.matchStarted, this.onMatchStarted);
         
+        //set event handler for when the server tells us the match has started
+        socket.on(config.events.matchEnded, this.onMatchEnded);
+
     },
 
     // Render the component
     render: function() {
-
-        return (
-            React.createElement("div", null, 
-            React.createElement("div", null, "Hello is ", this.props.worldState.hello, " and timer is ", new Date(this.props.worldState.timer).getTime()), 
-            React.createElement("div", null, "Current time is ", new Date().getTime()), 
-            React.createElement("div", null, "Latency is ", this.getLatency())
-            )
+        
+        var worldState = this.state.worldState;
+        
+        if(worldState.matchState == config.matchStates.waitingForPlayers
+        || worldState.matchState == config.matchStates.matchStarting){
             
-        )
+            return React.createElement(InfoScreen, {worldState: worldState})
+        }
+        
+        if(worldState.matchState == config.matchStates.matchStarted){
+            
+            return React.createElement(Match, {worldState: worldState})
+        }
+        
+        if(!worldState.matchState){
+            
+            return React.createElement("div", null, "loading..")
+        }
+
+        return React.createElement("div", null, "unimplemented view for matchstate ", worldState.matchState)
     }
 
 });
 
-},{"react":160}],4:[function(require,module,exports){
+},{"./../config":4,"./InfoScreen.react.js":1,"./Match.react.js":2,"react":160}],4:[function(require,module,exports){
 module.exports = {
 
     events: {
@@ -178,8 +229,11 @@ module.exports = {
         player1Joined: "player1Joined",
         player2Joined: "player2Joined",
         noMorePlayersNeeded: "noMorePlayersNeeded",
+        acceptedAsPlayer: "acceptedAsPlayer",
         matchStarting: "matchStarting",
-        acceptedAsPlayer: "acceptedAsPlayer"
+        matchStarted: "matchStarted",
+        requestEndMatch: "requestEndMatch",
+        matchEnded: "matchEnded",
     },
     
     identifiers: {
@@ -195,6 +249,14 @@ module.exports = {
             
             console.log(data);
         }
+    },
+    
+    matchStates: {
+      
+      waitingForPlayers: "waitingForPlayers",
+      matchStarting: "matchStarting",
+      matchStarted: "matchStarted",
+      matchEnded: "matchEnded"
     },
     
     playUrl: "https://stockfighter-tstock.c9.io/play"
@@ -20023,4 +20085,4 @@ React.render(
   document.getElementById('react-app')
 );
 
-},{"./components/StockFighterApp.react":2,"react":160}]},{},[161]);
+},{"./components/StockFighterApp.react":3,"react":160}]},{},[161]);

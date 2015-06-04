@@ -8,7 +8,9 @@ module.exports = ControllerApp = React.createClass({
         return {
             id: null,
             playerNumber: null,
-            noMorePlayersNeeded: null
+            noMorePlayersNeeded: null,
+            matchHasEnded: null,
+            disconnected: null
         };
     },
     
@@ -58,6 +60,15 @@ module.exports = ControllerApp = React.createClass({
         this.setState({noMorePlayersNeeded: true});
     },
     
+    //when a match ends
+    onMatchEnded: function(worldState){
+        
+        console.log("match ended");
+        
+        this.setState({matchHasEnded: true});
+        
+    },
+    
     
     // Called once, after initial rendering in the browser
     componentDidMount: function() {
@@ -71,6 +82,11 @@ module.exports = ControllerApp = React.createClass({
             self.setState({id: socket.id});
         });
         
+        socket.on("disconnect", function(){
+            
+            self.setState({disconnected: true});
+        });
+        
         //set event handler for when the server asks us to log something
         socket.on(config.events.log, config.eventHandlers.onLog);
         
@@ -82,6 +98,9 @@ module.exports = ControllerApp = React.createClass({
         
        //set event handler for when the server tells us we are denied as controller
         socket.on(config.events.noMorePlayersNeeded, this.onNoMorePlayersNeeded);
+        
+        //set event handler for when the server tells us the match has started
+        socket.on(config.events.matchEnded, this.onMatchEnded);
 
         //identify ourself to the server
         socket.emit(config.events.identify, config.identifiers.controller);
@@ -92,6 +111,11 @@ module.exports = ControllerApp = React.createClass({
     render: function() {
         
         var state = this.state;
+        
+        if(state.matchHasEnded){
+            
+            return <div>Thank you for playing</div>;
+        }
         
         var playerInfo = function(){
             
@@ -124,6 +148,14 @@ module.exports = ControllerApp = React.createClass({
                 </div>
             );
             
+        };
+        
+        var disconnectedInfo = function(){
+            
+            if(state.disconnected){
+                
+                return <div>You have been disconnected.</div>;
+            }
         }
         
         var buttonStyle = {
@@ -143,12 +175,13 @@ module.exports = ControllerApp = React.createClass({
                     </div>
                 );
             }
-        }
+        };
         
         return (
             <div className="controller-app">
                 {controls()}
                 {playerInfo()}
+                {disconnectedInfo()}
             </div>
         );
 
