@@ -20,6 +20,6 @@ module.exports = function () {
     
     function log(){
         
-        console.log("Worldstate: ");
+        console.log("WorldState: ");
     }
 };

@@ -1,3 +1,5 @@
+var dateFormat = require('dateformat');
+
 module.exports = {
 
     events: {
@@ -25,7 +27,9 @@ module.exports = {
         
         onLog: function(data){
             
-            console.log(data);
+            var now = new Date();
+            
+            console.log(dateFormat(now, "isoDate") + " " + dateFormat(now, "isoTime") + ": " + data);
         }
     },
     

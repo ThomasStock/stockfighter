@@ -56,7 +56,8 @@ module.exports = InfoScreen = React.createClass({
             <div className="info-screen">
                 <h1>StockFighter</h1>
                 <p>
-                    Surf to <a href={config.playUrl} target="_blank">{config.playUrl}</a> in another browsertab or on a mobile device to enter as player.
+                    Surf to <a href={config.playUrl} target="_blank">{config.playUrl}</a> in another browser tab or on a mobile device to enter as player.<br/>
+                    (Open multiple browser tabs to play against yourself.)
                 </p>
                 <div className="players">
                     {playerDiv(worldState.player1, 1)}
