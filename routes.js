@@ -1,8 +1,5 @@
-var JSX = require('node-jsx').install(),
-    React = require('react'),
-    io = require('socket.io'),
-    StockFighterApp = React.createFactory(require('./components/StockFighterApp.react')),
-    ControllerApp = React.createFactory(require('./components/ControllerApp.react'));
+var React = require('react'),
+    io = require('socket.io');
 
 module.exports = {
 
@@ -10,12 +7,12 @@ module.exports = {
 
         return function(req, res) {
             
-            // Render React to a string, passing in our fetched tweets
+/*            // Render React to a string, passing in our fetched tweets
             var markup = React.renderToString(
                 StockFighterApp({
                     worldState: worldState
                 })
-            );
+            );*/
 
             // Render our 'home' template
             res.render('home', {
@@ -31,14 +28,14 @@ module.exports = {
 
         return function(req, res) {
 
-            // Render React to a string, passing in our fetched tweets
+/*            // Render React to a string, passing in our fetched tweets
             var markup = React.renderToString(
                 ControllerApp()
-            );
+            );*/
 
             // Render our 'home' template
             res.render('home', {
-                markup: markup, // Pass rendered react markup
+                markup: "", // Pass rendered react markup
                 state: JSON.stringify({}),
                 layout: 'play'
             });

@@ -75,6 +75,10 @@ module.exports = Match = React.createClass({displayName: "Match",
         socket.emit(config.events.requestEndMatch);
     },
     
+    getSize: function () {
+        return document.getElementById('main').getBoundingClientRect();
+    },
+    
     getImageHeight: function() {
         return Math.round(window.innerHeight / 2);
     },
@@ -102,30 +106,28 @@ module.exports = Match = React.createClass({displayName: "Match",
     // Render the component
     render: function() {
         
-        if(!this.props.isEndMatchRequested){
+        if(this.props.isEndMatchRequested){
+            return React.createElement("div", null, "ending match..");
+        }
 
-            var surfaceWidth = window.innerWidth;
-            var surfaceHeight = window.innerHeight;
-            var imageStyle = this.getImageStyle();
-            var textStyle = this.getTextStyle();
-        
-            return (
-                React.createElement("div", {className: "match-view"}, 
-                    
+        var surfaceWidth = window.innerWidth;
+        var surfaceHeight = window.innerHeight;
+        var imageStyle = this.getImageStyle();
+        var textStyle = this.getTextStyle();
+    
+        return (
+            React.createElement("div", {className: "match-view"}, 
+                React.createElement("div", {className: "surface"}, 
                     React.createElement(Surface, {width: surfaceWidth, height: surfaceHeight, left: 0, top: 0}, 
                         React.createElement(Image, {style: imageStyle, src: "http://www.picturesnew.com/media/images/picture-wallpaper.jpg"}), 
                         React.createElement(Text, {style: textStyle}, 
                           "Here is some text below an image."
                         )
-                    ), 
-                    
-                    React.createElement("input", {type: "button", value: "End the match", onClick: this.endMatch})
-                    
-                )
-            );
-        }
-
-        return React.createElement("div", null, "ending match..");
+                    )
+                ), 
+                React.createElement("input", {type: "button", value: "End the match", onClick: this.endMatch})
+            )
+        );
     }
 });
 

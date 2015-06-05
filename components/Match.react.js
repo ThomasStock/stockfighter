@@ -14,6 +14,10 @@ module.exports = Match = React.createClass({
         socket.emit(config.events.requestEndMatch);
     },
     
+    getSize: function () {
+        return document.getElementById('main').getBoundingClientRect();
+    },
+    
     getImageHeight: function() {
         return Math.round(window.innerHeight / 2);
     },
@@ -41,29 +45,27 @@ module.exports = Match = React.createClass({
     // Render the component
     render: function() {
         
-        if(!this.props.isEndMatchRequested){
+        if(this.props.isEndMatchRequested){
+            return <div>ending match..</div>;
+        }
 
-            var surfaceWidth = window.innerWidth;
-            var surfaceHeight = window.innerHeight;
-            var imageStyle = this.getImageStyle();
-            var textStyle = this.getTextStyle();
-        
-            return (
-                <div className="match-view">
-                    
+        var surfaceWidth = window.innerWidth;
+        var surfaceHeight = window.innerHeight;
+        var imageStyle = this.getImageStyle();
+        var textStyle = this.getTextStyle();
+    
+        return (
+            <div className="match-view">
+                <div className="surface">
                     <Surface width={surfaceWidth} height={surfaceHeight} left={0} top={0}>
                         <Image style={imageStyle} src='http://www.picturesnew.com/media/images/picture-wallpaper.jpg' />
                         <Text style={textStyle}>
                           Here is some text below an image.
                         </Text>
                     </Surface>
-                    
-                    <input type="button" value="End the match" onClick={this.endMatch} />
-                    
                 </div>
-            );
-        }
-
-        return <div>ending match..</div>;
+                <input type="button" value="End the match" onClick={this.endMatch} />
+            </div>
+        );
     }
 });
