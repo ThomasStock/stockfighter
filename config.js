@@ -41,5 +41,11 @@ module.exports = {
       matchEnded: "matchEnded"
     },
     
-    playUrl: "https://stockfighter-tstock.c9.io/play"
+    playUrl: "https://stockfighter-tstock.c9.io/play",
+    
+    colors: {
+        
+        player1Color: "FF0000",
+        player2Color: "0000FF"
+    }
 }

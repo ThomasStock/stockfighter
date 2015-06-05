@@ -12,6 +12,8 @@ module.exports = function(io, worldState) {
     }
 
     return match;
+    
+    //public methods
   
     function log() {
   
@@ -20,10 +22,21 @@ module.exports = function(io, worldState) {
     }
 
     function start() {
+        
+        reset();
   
         worldState.matchState = config.matchStates.matchStarted;
   
         io.emit(config.events.matchStarted, worldState);
   
+    }
+    
+    //private methods
+    
+    function reset(){
+        
+        worldState.player1.pos = {x: 50, y: 50};
+        worldState.player2.pos = {x: 100, y: 50};
+        
     }
 };

@@ -11,7 +11,9 @@ module.exports = function(id, name) {
         pos: {
             x: 0,
             y: 0
-        }
+        },
+        
+        color: null
     }
 
 
@@ -20,6 +22,6 @@ module.exports = function(id, name) {
     function log() {
 
 
-        console.log("Player " + id);
+        console.log("Player " + name + " (id: " + id + ")");
     }
 };

@@ -3,19 +3,6 @@ var React = require('react'),
 
 module.exports = InfoScreen = React.createClass({
 
-    // Set the initial component state
-    getInitialState: function(props) {
-
-        props = props || this.props;
-
-        // Set initial application state using props
-        return props;
-
-    },
-
-
-
-
     // Called once, after initial rendering in the browser
     componentDidMount: function() {
 

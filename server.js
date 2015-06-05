@@ -128,6 +128,13 @@ io.on('connection', function(socket) {
                     //start the match after 3 seconds
                     setTimeout(function() {
                         
+                        //some temp stuff
+                        worldState.player1.name = "Player1";
+                        worldState.player2.name = "Player2";
+                        worldState.player1.color = config.colors.player1Color;
+                        worldState.player2.color = config.colors.player2Color;
+                        
+                        
                         config.eventHandlers.onLog("match started!");
                         match.start();
                     }, 3000);
@@ -141,7 +148,7 @@ io.on('connection', function(socket) {
 
                     config.eventHandlers.onLog("ending match");
 
-                    //reset the game
+                    //reset the worldState
 
                     worldState.matchState = config.matchStates.waitingForPlayers;
                     worldState.player1 = null;
