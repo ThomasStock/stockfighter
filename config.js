@@ -47,5 +47,14 @@ module.exports = {
         
         player1Color: "FF0000",
         player2Color: "0000FF"
-    }
+    },
+    
+    runmodes: {
+        
+        waitOnPlayers : "waitOnPlayers",    //normal mode, wait for 2 players before starting game
+        waitOn1Player: "waitOn1Player",     //1 player needed, other is mocked
+        waitOnViewer: "waitOnViewer"        //no controls possible, go straight to the match screen
+    },
+    
+    runmode: "waitOnViewer"
 }

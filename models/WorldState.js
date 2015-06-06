@@ -12,7 +12,7 @@ module.exports = function () {
         
         matchState: config.matchStates.waitingForPlayers,
         
-        log: log
+        log: log,
         
     }
     

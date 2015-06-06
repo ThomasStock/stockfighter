@@ -1,12 +1,9 @@
 var React = require('react'),
-    ReactCanvas = require('react-canvas'),
     config = require('./../config');
     
-var Surface = ReactCanvas.Surface;
-var Image = ReactCanvas.Image;
-var Text = ReactCanvas.Text;
-
 module.exports = Match = React.createClass({
+    
+    game: null, //Phaser.Game
     
     endMatch: function(){
         
@@ -15,56 +12,58 @@ module.exports = Match = React.createClass({
     },
     
     getSize: function () {
-        return document.getElementById('main').getBoundingClientRect();
+        return document.getElementById('surface').getBoundingClientRect();
     },
     
-    getImageHeight: function() {
-        return Math.round(window.innerHeight / 2);
-    },
-
-    getImageStyle: function() {
-        return {
-            top: 0,
-            left: 0,
-            width: window.innerWidth,
-            height: this.getImageHeight()
-        };
-    },
-
-    getTextStyle: function() {
-        return {
-            top: this.getImageHeight() + 10,
-            left: 0,
-            width: window.innerWidth,
-            height: 20,
-            lineHeight: 20,
-            fontSize: 12
-        };
+    preload: function(){
+        
+        game.load.image('sky', 'assets/sky.png');
+        game.load.image('ground', 'assets/platform.png');
+        game.load.image('star', 'assets/star.png');
+        game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+        
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        game.scale.windowConstraints = {"right":"layout","bottom":"layout"};
     },
     
+    create: function(){
+        
+        game.add.sprite(0,0,'sky');
+        game.add.sprite(1004,748, 'star');
+    },
+    
+    update: function(){
+        
+        
+    },
+    
+    componentDidMount: function(){
+        
+        var self = this;
+        
+        game = new Phaser.Game(1024, 768, Phaser.AUTO, 'surface', { preload: self.preload, create: self.create, update: self.update });
+        
+
+    },
+    
+
     // Render the component
     render: function() {
+        
+        //http://cssdeck.com/labs/emcxdwuz
         
         if(this.props.isEndMatchRequested){
             return <div>ending match..</div>;
         }
+        
+        
 
-        var surfaceWidth = window.innerWidth;
-        var surfaceHeight = window.innerHeight;
-        var imageStyle = this.getImageStyle();
-        var textStyle = this.getTextStyle();
     
         return (
-            <div className="match-view">
-                <div className="surface">
-                    <Surface width={surfaceWidth} height={surfaceHeight} left={0} top={0}>
-                        <Image style={imageStyle} src='http://www.picturesnew.com/media/images/picture-wallpaper.jpg' />
-                        <Text style={textStyle}>
-                          Here is some text below an image.
-                        </Text>
-                    </Surface>
+            <div id="match-view">
+                <div id="surface">
+                    
                 </div>
-                <input type="button" value="End the match" onClick={this.endMatch} />
             </div>
         );
     }

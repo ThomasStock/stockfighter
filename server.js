@@ -41,6 +41,7 @@ var server = http.createServer(app).listen(port, function() {
 //initialize the world state (empty game, nobody connected)
 var worldState = new WorldState();
 
+
 //initialize socket.io server
 var io = require('socket.io')(server);
 
@@ -97,9 +98,9 @@ io.on('connection', function(socket) {
                 }
                 else //we need a player2..
                 {
-                    
+
                     config.eventHandlers.onLog(id + " assigned as player 2");
-                    
+
                     //assign the current socket to it
                     worldState.player2 = new Player(id);
 
@@ -115,7 +116,7 @@ io.on('connection', function(socket) {
                 if (worldState.player1 != null && worldState.player2 != null) {
 
                     config.eventHandlers.onLog("starting match..");
-                    
+
                     //update matchState
                     worldState.matchState = config.matchStates.matchStarting;
 
@@ -127,21 +128,37 @@ io.on('connection', function(socket) {
 
                     //start the match after 3 seconds
                     setTimeout(function() {
-                        
+
                         //some temp stuff
                         worldState.player1.name = "Player1";
                         worldState.player2.name = "Player2";
                         worldState.player1.color = config.colors.player1Color;
                         worldState.player2.color = config.colors.player2Color;
-                        
-                        
+
+
                         config.eventHandlers.onLog("match started!");
                         match.start();
-                    }, 3000);
+                    }, 1000);
                 }
 
                 break;
             case config.identifiers.viewer:
+                
+                //static setting for debugging purposes
+                if (config.runmode == config.runmodes.waitOnViewer) {
+
+                    //test mode without controllers, immediate game start
+                
+                    worldState.player1 = new Player(1000, "computer1");
+                    worldState.player2 = new Player(2000, "computer2");
+                    worldState.player1.color = config.colors.player1Color;
+                    worldState.player2.color = config.colors.player2Color;
+                
+                    var match = new Match(io, worldState);
+                
+                    config.eventHandlers.onLog("match started!");
+                    match.start();
+                }
 
                 //when the viewer requests the game to end.. 
                 socket.on(config.events.requestEndMatch, function(data) {

@@ -23,7 +23,6 @@ module.exports = {
         }
     },
 
-
     play: function() {
 
         return function(req, res) {
