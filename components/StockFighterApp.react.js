@@ -63,6 +63,8 @@ module.exports = StockFighterApp = React.createClass({
 
     // Called once, after initial rendering in the browser
     componentDidMount: function() {
+        
+        config.eventHandlers.onLog("initializing socket");
 
         socket = io.connect();
         
@@ -86,7 +88,7 @@ module.exports = StockFighterApp = React.createClass({
         
         //set event handler for when the server tells us the match has started
         socket.on(config.events.matchEnded, this.onMatchEnded);
-
+        
     },
 
     // Render the component
@@ -103,6 +105,11 @@ module.exports = StockFighterApp = React.createClass({
         if(worldState.matchState == config.matchStates.matchStarted){
             
             return <Match worldState={worldState}/>
+        }
+        
+        if(worldState.matchState == config.matchStates.matchEnded){
+            
+            return <div>refresh to restart game</div>
         }
         
         if(!worldState.matchState){

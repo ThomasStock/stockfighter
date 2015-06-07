@@ -156,7 +156,7 @@ io.on('connection', function(socket) {
                 
                     var match = new Match(io, worldState);
                 
-                    config.eventHandlers.onLog("match started!");
+                    config.eventHandlers.onLog("starting match now!");
                     match.start();
                 }
 

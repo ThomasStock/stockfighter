@@ -1,70 +1,132 @@
 var React = require('react'),
     config = require('./../config');
-    
+
 module.exports = Match = React.createClass({
-    
+
     game: null, //Phaser.Game
-    
-    endMatch: function(){
-        
+
+    matchUpdate: null, //object contains the latest information received from the server
+
+    sprites: {}, //container for sprites that must be updated
+
+    endMatch: function() {
+
         //request the server to end the match
         socket.emit(config.events.requestEndMatch);
     },
-    
-    getSize: function () {
+
+    getSize: function() {
         return document.getElementById('surface').getBoundingClientRect();
     },
-    
-    preload: function(){
-        
+
+    preload: function() {
+
+        var self = this;
+        var game = self.game;
+
         game.load.image('sky', 'assets/sky.png');
         game.load.image('ground', 'assets/platform.png');
         game.load.image('star', 'assets/star.png');
         game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
-        
+
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        game.scale.windowConstraints = {"right":"layout","bottom":"layout"};
+        game.scale.windowConstraints = {
+            "right": "layout",
+            "bottom": "layout"
+        };
     },
-    
-    create: function(){
-        
-        game.add.sprite(0,0,'sky');
-        game.add.sprite(1004,748, 'star');
-    },
-    
-    update: function(){
-        
-        
-    },
-    
-    componentDidMount: function(){
-        
+
+    create: function() {
+
         var self = this;
+        var game = self.game;
+        var sprites = self.sprites;
+        var props = self.props;
+
+        var sky = game.add.sprite(0, 0, 'sky');
+        sky.width = game.world.width;
+        sky.height = game.world.height;
+
+        var ground = game.add.sprite(0, game.world.height - 120, 'ground');
+        ground.height = 120;
+        ground.width = game.world.width;
+
+        sprites.player1 = game.add.sprite(props.worldState.player1.pos.x, props.worldState.player1.pos.y, 'dude');
+        sprites.player1.frame = 5;
+
+
+        sprites.player2 = game.add.sprite(props.worldState.player2.pos.x, props.worldState.player2.pos.y, 'dude');
+        sprites.player2.frame = 0;
         
-        game = new Phaser.Game(1024, 768, Phaser.AUTO, 'surface', { preload: self.preload, create: self.create, update: self.update });
+        game.start();
+    },
+
+    //phaser main game loop tick
+    update: function() {
         
+        console.log("in update");
+
+        var sprites = this.sprites;
+        var matchUpdate = this.matchUpdate;
+
+        if (matchUpdate != null) {
+
+            sprites.player1.x = matchUpdate.player1.pos.x;
+            sprites.player1.y = matchUpdate.player1.pos.y;
+
+            sprites.player2.x = matchUpdate.player2.pos.x;
+            sprites.player2.y = matchUpdate.player2.pos.y;
+        }
+    },
+
+    componentDidMount: function() {
+
+        var self = this;
+
+        //initilize the HTML5 game engine Phaser
+        self.game = new Phaser.Game(config.game.width, config.game.height, Phaser.AUTO, 'surface', {
+            preload: self.preload,
+            create: self.create,
+            update: self.update
+        });
+
+        config.eventHandlers.onLog("start listening to matchUpdate events");
+
+        //start listening to update events
+        socket.on(config.events.matchUpdate, self.onMatchUpdateReceived)
 
     },
     
+    componentWillUnmount: function() {
+        
+        this.game.destroy();
+        this.game = null;
+    },
+
+    onMatchUpdateReceived: function(matchUpdate) {
+
+        config.eventHandlers.onLog("received matchupdate frame " + matchUpdate.frameCount);
+
+        this.matchUpdate = matchUpdate;
+    },
+
 
     // Render the component
     render: function() {
-        
-        //http://cssdeck.com/labs/emcxdwuz
-        
-        if(this.props.isEndMatchRequested){
-            return <div>ending match..</div>;
-        }
-        
-        
 
-    
-        return (
-            <div id="match-view">
-                <div id="surface">
-                    
-                </div>
-            </div>
+        //http://cssdeck.com/labs/emcxdwuz
+
+        if (this.props.isEndMatchRequested) {
+            return <div > ending match.. < /div>;
+        }
+
+
+
+
+        return ( < div id = "match-view" >
+            < div id = "surface" >
+
+            < /div> < /div>
         );
     }
 });

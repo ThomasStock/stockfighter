@@ -207,6 +207,7 @@ module.exports = {
         matchStarted: "matchStarted",
         requestEndMatch: "requestEndMatch",
         matchEnded: "matchEnded",
+        matchUpdate: "matchUpdate"
     },
     
     identifiers: {
@@ -249,7 +250,17 @@ module.exports = {
         waitOnViewer: "waitOnViewer"        //no controls possible, go straight to the match screen
     },
     
-    runmode: "waitOnViewer"
+    runmode: "waitOnViewer",
+    
+    game: {
+        width: 1024,
+        height: 768
+    },
+    
+    loops: {
+        serverUpdateLoop: 30, // # of ms per frame for input/output processing on the server
+        serverPhysicsLoop: 15, // # of ms
+    }
 }
 
 },{"dateformat":5}],3:[function(require,module,exports){
