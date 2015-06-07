@@ -16,28 +16,27 @@ module.exports = ControllerApp = React.createClass({
     
     left: function(){
       
-      console.log("left");
-      this.send();
+
+      this.send(config.matchInputs.left);
         
     },
         
     right: function(){
       
-      console.log("right");
-      this.send();
+      this.send(config.matchInputs.right);
         
     },
         
     jump: function(){
       
-      console.log("jump");
-      this.send();
+      this.send(config.matchInputs.jump);
         
     },
     
-    send: function(){
-      
-        socket.emit('tst', new WorldState());
+    send: function(matchInput){
+        
+        config.eventHandlers.onLog("sending input " + matchInput);
+        socket.emit(config.events.matchInput, matchInput);
         
     },
     
@@ -110,6 +109,7 @@ module.exports = ControllerApp = React.createClass({
     // Render the component
     render: function() {
         
+        var self = this;
         var state = this.state;
         
         if(state.matchHasEnded){
@@ -169,10 +169,12 @@ module.exports = ControllerApp = React.createClass({
                 
                 return (
                     <div className="controller">
-                        <input type="button" style={buttonStyle} onClick={this.left} value="Left" ></input>
-                        <input type="button" style={buttonStyle} onClick={this.jump} value="Jump" ></input>
-                        <input type="button" style={buttonStyle} onClick={this.right} value="Right" ></input>
+                        <input type="button" style={buttonStyle} onClick={self.left} value="Left" ></input>
+                        <input type="button" style={buttonStyle} onClick={self.jump} value="Jump" ></input>
+                        <input type="button" style={buttonStyle} onClick={self.right} value="Right" ></input>
+                        <p>only left and right work at the moment</p>
                     </div>
+                    
                 );
             }
         };

@@ -13,7 +13,9 @@ module.exports = function(id, name) {
             y: 0
         },
         
-        color: null
+        color: null,
+        
+        matchInputs: []
     }
 
 

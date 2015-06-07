@@ -47,9 +47,12 @@ module.exports = InfoScreen = React.createClass({displayName: "InfoScreen",
                     "Surf to ", React.createElement("a", {href: config.playUrl, target: "_blank"}, config.playUrl), " in another browser tab or on a mobile device to enter as player.", React.createElement("br", null), 
                     "(Open multiple browser tabs to play against yourself.)"
                 ), 
+                React.createElement("p", null, 
+                    "The game currently resets after 20 seconds. Refresh the controller(s) to play again."
+                ), 
                 React.createElement("div", {className: "players"}, 
-                    playerDiv(worldState.player1, 1), 
-                    playerDiv(worldState.player2, 2)
+                    playerDiv(worldState.players[0], 1), 
+                    playerDiv(worldState.players[1], 2)
                 ), 
                 gameStartMessage()
             )
@@ -112,31 +115,30 @@ module.exports = Match = React.createClass({displayName: "Match",
         ground.height = 120;
         ground.width = game.world.width;
 
-        sprites.player1 = game.add.sprite(props.worldState.player1.pos.x, props.worldState.player1.pos.y, 'dude');
+        sprites.player1 = game.add.sprite(props.worldState.players[0].pos.x, props.worldState.players[0].pos.y, 'dude');
         sprites.player1.frame = 5;
 
 
-        sprites.player2 = game.add.sprite(props.worldState.player2.pos.x, props.worldState.player2.pos.y, 'dude');
+        sprites.player2 = game.add.sprite(props.worldState.players[1].pos.x, props.worldState.players[1].pos.y, 'dude');
         sprites.player2.frame = 0;
-        
-        game.start();
+
     },
 
     //phaser main game loop tick
     update: function() {
         
-        console.log("in update");
+        //console.log("in update");
 
         var sprites = this.sprites;
         var matchUpdate = this.matchUpdate;
 
         if (matchUpdate != null) {
 
-            sprites.player1.x = matchUpdate.player1.pos.x;
-            sprites.player1.y = matchUpdate.player1.pos.y;
+            sprites.player1.x = matchUpdate.players[0].pos.x;
+            sprites.player1.y = matchUpdate.players[0].pos.y;
 
-            sprites.player2.x = matchUpdate.player2.pos.x;
-            sprites.player2.y = matchUpdate.player2.pos.y;
+            sprites.player2.x = matchUpdate.players[1].pos.x;
+            sprites.player2.y = matchUpdate.players[1].pos.y;
         }
     },
 
@@ -161,12 +163,11 @@ module.exports = Match = React.createClass({displayName: "Match",
     componentWillUnmount: function() {
         
         this.game.destroy();
-        this.game = null;
     },
 
     onMatchUpdateReceived: function(matchUpdate) {
 
-        config.eventHandlers.onLog("received matchupdate frame " + matchUpdate.frameCount);
+        //config.eventHandlers.onLog("received matchupdate frame " + matchUpdate.frameCount);
 
         this.matchUpdate = matchUpdate;
     },
@@ -334,6 +335,7 @@ module.exports = {
         matchStarted: "matchStarted",
         requestEndMatch: "requestEndMatch",
         matchEnded: "matchEnded",
+        matchInput: "matchInput",
         matchUpdate: "matchUpdate"
     },
     
@@ -377,7 +379,7 @@ module.exports = {
         waitOnViewer: "waitOnViewer"        //no controls possible, go straight to the match screen
     },
     
-    runmode: "waitOnViewer",
+    runmode: "waitOnPlayers",
     
     game: {
         width: 1024,
@@ -387,6 +389,12 @@ module.exports = {
     loops: {
         serverUpdateLoop: 30, // # of ms per frame for input/output processing on the server
         serverPhysicsLoop: 15, // # of ms
+    },
+    
+    matchInputs:{
+        left: "left",
+        right: "right",
+        jump: "jump"
     }
 }
 

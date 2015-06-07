@@ -46,9 +46,12 @@ module.exports = InfoScreen = React.createClass({
                     Surf to <a href={config.playUrl} target="_blank">{config.playUrl}</a> in another browser tab or on a mobile device to enter as player.<br/>
                     (Open multiple browser tabs to play against yourself.)
                 </p>
+                <p>
+                    The game currently resets after 20 seconds. Refresh the controller(s) to play again.
+                </p>
                 <div className="players">
-                    {playerDiv(worldState.player1, 1)}
-                    {playerDiv(worldState.player2, 2)}
+                    {playerDiv(worldState.players[0], 1)}
+                    {playerDiv(worldState.players[1], 2)}
                 </div>
                 {gameStartMessage()}
             </div>

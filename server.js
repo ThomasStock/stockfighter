@@ -71,7 +71,7 @@ io.on('connection', function(socket) {
             case config.identifiers.controller:
 
                 //if the world needs no more players..
-                if (worldState.player1 != null && worldState.player2 != null) {
+                if (worldState.players[0] != null && worldState.players[1] != null) {
 
                     config.eventHandlers.onLog(id + " disconnected because there are no more players needed");
 
@@ -83,12 +83,12 @@ io.on('connection', function(socket) {
                 }
 
                 //if we need a player1..
-                if (worldState.player1 == null) {
+                if (worldState.players[0] == null) {
 
                     config.eventHandlers.onLog(id + " assigned as player 1");
 
                     //assign the current socket to it
-                    worldState.player1 = new Player(id);
+                    worldState.players[0] = new Player(id);
 
                     //let the socket know it's player 1
                     socket.emit(config.events.acceptedAsPlayer, 1);
@@ -102,7 +102,7 @@ io.on('connection', function(socket) {
                     config.eventHandlers.onLog(id + " assigned as player 2");
 
                     //assign the current socket to it
-                    worldState.player2 = new Player(id);
+                    worldState.players[1] = new Player(id);
 
                     //let the socket know it's player 2
                     socket.emit(config.events.acceptedAsPlayer, 2);
@@ -113,7 +113,7 @@ io.on('connection', function(socket) {
 
                 //at this point we know a player joined the game. 
                 //check if we now have 2 players and can start the match
-                if (worldState.player1 != null && worldState.player2 != null) {
+                if (worldState.players[0] != null && worldState.players[1] != null) {
 
                     config.eventHandlers.onLog("starting match..");
 
@@ -130,11 +130,10 @@ io.on('connection', function(socket) {
                     setTimeout(function() {
 
                         //some temp stuff
-                        worldState.player1.name = "Player1";
-                        worldState.player2.name = "Player2";
-                        worldState.player1.color = config.colors.player1Color;
-                        worldState.player2.color = config.colors.player2Color;
-
+                        worldState.players[0].name = "Player1";
+                        worldState.players[1].name = "Player2";
+                        worldState.players[0].color = config.colors.player1Color;
+                        worldState.players[1].color = config.colors.player2Color;
 
                         config.eventHandlers.onLog("match started!");
                         match.start();
@@ -149,10 +148,10 @@ io.on('connection', function(socket) {
 
                     //test mode without controllers, immediate game start
                 
-                    worldState.player1 = new Player(1000, "computer1");
-                    worldState.player2 = new Player(2000, "computer2");
-                    worldState.player1.color = config.colors.player1Color;
-                    worldState.player2.color = config.colors.player2Color;
+                    worldState.players[0] = new Player(1000, "computer1");
+                    worldState.players[1] = new Player(2000, "computer2");
+                    worldState.players[0].color = config.colors.player1Color;
+                    worldState.players[1].color = config.colors.player2Color;
                 
                     var match = new Match(io, worldState);
                 
@@ -165,13 +164,7 @@ io.on('connection', function(socket) {
 
                     config.eventHandlers.onLog("ending match");
 
-                    //reset the worldState
-
-                    worldState.matchState = config.matchStates.waitingForPlayers;
-                    worldState.player1 = null;
-                    worldState.player2 = null;
-
-                    io.emit(config.events.matchEnded, worldState);
+                    worldState.reset(io);
 
                 });
 

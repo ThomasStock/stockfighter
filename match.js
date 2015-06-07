@@ -12,12 +12,10 @@ module.exports = function(io, worldState) {
     //export object
 
     var match = {
-
         start: start,
+        stop: stop,
         log: log
-
-    }
-
+    };
     return match;
 
 
@@ -30,8 +28,6 @@ module.exports = function(io, worldState) {
     }
 
     function start() {
-        
-        io.emit(config.events.matchUpdate, {frameCount: 0});
 
         reset();
 
@@ -39,72 +35,121 @@ module.exports = function(io, worldState) {
 
         io.emit(config.events.matchStarted, worldState);
 
+        //for each player
+        for (var i = 0; i < 2; i++) {
+
+            (function(playerIndex) {
+
+                var id = worldState.players[i].id;
+                var socket = io.sockets.connected[id];
+
+                if (socket) {
+                    //listen to inputs
+                    socket.on(config.events.matchInput, function(matchInput) {
+                        onReceivedinput(matchInput, playerIndex);
+                    });
+                }
+                
+            })(i);
+        }
+
         // start the loop at 30 fps (1000/30ms per frame) and grab its id 
         serverUpdateLoop = gameloop.setGameLoop(serverUpdateLoopTick, 1000 / config.loops.serverUpdateLoop);
 
         // stop the loop 2 seconds later 
         setTimeout(function() {
             console.log('2000ms passed, stopping the game loop');
-            gameloop.clearGameLoop(serverUpdateLoop);
             stop();
-        }, 5000);
+        }, 20000);
 
     }
 
     function stop() {
 
-        worldState.matchState = config.matchStates.matchEnded;
-
-        io.emit(config.events.matchEnded, worldState);
+        gameloop.clearGameLoop(serverUpdateLoop);
+        worldState.reset(io);
     }
 
     //private methods
 
     function reset() {
 
-        worldState.player1.pos = {
+        worldState.players[0].pos = {
             x: 100,
             y: 600
         };
-        worldState.player2.pos = {
+        worldState.players[1].pos = {
             x: 924,
             y: 600
         };
 
         serverUpdateLoop = null;
-        
+
         matchUpdate = {
-            
-            player1: {
-                pos: {
-                    x: null,
-                    y: null
-                }
-            },
-            
-            player2: {
-                pos: {
-                    x: null,
-                    y: null
-                }
-            },
-            
+
+            players: [],
+
             frameCount: 0
         };
 
+        //for each player
+        for (var i = 0; i < 2; i++) {
+
+            matchUpdate.players[i] = {
+                pos: {
+                    x: worldState.players[i].pos.x,
+                    y: worldState.players[i].pos.y
+                }
+            };
+
+        }
+    }
+
+    function onReceivedinput(input, playerIndex) {
+
+        config.eventHandlers.onLog("received input " + input + " for player " + playerIndex);
+        worldState.players[playerIndex].matchInputs.push(input);
     }
 
     function serverUpdateLoopTick(delta) {
-        
+
         matchUpdate.frameCount++;
 
-        worldState.player1.pos.x++;
-        worldState.player2.pos.x--;
-        
-        matchUpdate.player1.pos = worldState.player1.pos;
-        matchUpdate.player2.pos = worldState.player2.pos;
+        //for each player
+        for (var i = 0; i < 2; i++) {
+
+            var player = worldState.players[i];
+
+            if (!player) return;
+
+            var inputsToHandle = player.matchInputs.slice();
+            //todo: possible lost matchinputs if there were added between the slice and the reset
+            player.matchInputs = [];
+
+            if (inputsToHandle.length > 0) {
+
+                var input = inputsToHandle[0];
+
+                config.eventHandlers.onLog("handling input " + input);
+
+                switch (input) {
+
+                    case config.matchInputs.left:
+
+                        player.pos.x -= 10;
+                        break;
+
+                    case config.matchInputs.right:
+
+                        player.pos.x += 10;
+                        break;
+                }
+            }
+        }
+
+        matchUpdate.players[0].pos = worldState.players[0].pos;
+        matchUpdate.players[1].pos = worldState.players[1].pos;
 
         io.emit(config.events.matchUpdate, matchUpdate);
-        config.eventHandlers.onLog("sending matchupdate frame " + matchUpdate.frameCount);
     }
 };

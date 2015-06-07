@@ -14,6 +14,7 @@ module.exports = {
         matchStarted: "matchStarted",
         requestEndMatch: "requestEndMatch",
         matchEnded: "matchEnded",
+        matchInput: "matchInput",
         matchUpdate: "matchUpdate"
     },
     
@@ -57,7 +58,7 @@ module.exports = {
         waitOnViewer: "waitOnViewer"        //no controls possible, go straight to the match screen
     },
     
-    runmode: "waitOnViewer",
+    runmode: "waitOnPlayers",
     
     game: {
         width: 1024,
@@ -67,5 +68,11 @@ module.exports = {
     loops: {
         serverUpdateLoop: 30, // # of ms per frame for input/output processing on the server
         serverPhysicsLoop: 15, // # of ms
+    },
+    
+    matchInputs:{
+        left: "left",
+        right: "right",
+        jump: "jump"
     }
 }

@@ -17,28 +17,27 @@ module.exports = ControllerApp = React.createClass({displayName: "ControllerApp"
     
     left: function(){
       
-      console.log("left");
-      this.send();
+
+      this.send(config.matchInputs.left);
         
     },
         
     right: function(){
       
-      console.log("right");
-      this.send();
+      this.send(config.matchInputs.right);
         
     },
         
     jump: function(){
       
-      console.log("jump");
-      this.send();
+      this.send(config.matchInputs.jump);
         
     },
     
-    send: function(){
-      
-        socket.emit('tst', new WorldState());
+    send: function(matchInput){
+        
+        config.eventHandlers.onLog("sending input " + matchInput);
+        socket.emit(config.events.matchInput, matchInput);
         
     },
     
@@ -111,6 +110,7 @@ module.exports = ControllerApp = React.createClass({displayName: "ControllerApp"
     // Render the component
     render: function() {
         
+        var self = this;
         var state = this.state;
         
         if(state.matchHasEnded){
@@ -170,10 +170,12 @@ module.exports = ControllerApp = React.createClass({displayName: "ControllerApp"
                 
                 return (
                     React.createElement("div", {className: "controller"}, 
-                        React.createElement("input", {type: "button", style: buttonStyle, onClick: this.left, value: "Left"}), 
-                        React.createElement("input", {type: "button", style: buttonStyle, onClick: this.jump, value: "Jump"}), 
-                        React.createElement("input", {type: "button", style: buttonStyle, onClick: this.right, value: "Right"})
+                        React.createElement("input", {type: "button", style: buttonStyle, onClick: self.left, value: "Left"}), 
+                        React.createElement("input", {type: "button", style: buttonStyle, onClick: self.jump, value: "Jump"}), 
+                        React.createElement("input", {type: "button", style: buttonStyle, onClick: self.right, value: "Right"}), 
+                        React.createElement("p", null, "only left and right work at the moment")
                     )
+                    
                 );
             }
         };
@@ -207,6 +209,7 @@ module.exports = {
         matchStarted: "matchStarted",
         requestEndMatch: "requestEndMatch",
         matchEnded: "matchEnded",
+        matchInput: "matchInput",
         matchUpdate: "matchUpdate"
     },
     
@@ -250,7 +253,7 @@ module.exports = {
         waitOnViewer: "waitOnViewer"        //no controls possible, go straight to the match screen
     },
     
-    runmode: "waitOnViewer",
+    runmode: "waitOnPlayers",
     
     game: {
         width: 1024,
@@ -260,33 +263,51 @@ module.exports = {
     loops: {
         serverUpdateLoop: 30, // # of ms per frame for input/output processing on the server
         serverPhysicsLoop: 15, // # of ms
+    },
+    
+    matchInputs:{
+        left: "left",
+        right: "right",
+        jump: "jump"
     }
 }
 
 },{"dateformat":5}],3:[function(require,module,exports){
 config = require('./../config');
-    
-module.exports = function () {
-    
+
+module.exports = function() {
+
     var worldState = {
-        
-        player1: null,
-        
-        player2: null,
-        
+
+        players: [],
+
         viewers: [],
-        
+
         matchState: config.matchStates.waitingForPlayers,
-        
+
         log: log,
-        
+
+        reset: reset
+
     }
-    
+
     return worldState;
-    
-    function log(){
-        
+
+    function log() {
+
         console.log("WorldState: ");
+    }
+
+    function reset(io) {
+        
+        var self = this;
+
+        //reset the worldState
+
+        self.matchState = config.matchStates.waitingForPlayers;
+        self.players = [];
+
+        io.emit(config.events.matchEnded, self);
     }
 };
 
