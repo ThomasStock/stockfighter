@@ -49,7 +49,7 @@ module.exports = function(io, worldState) {
                         onReceivedinput(matchInput, playerIndex);
                     });
                 }
-                
+
             })(i);
         }
 
@@ -107,11 +107,16 @@ module.exports = function(io, worldState) {
 
     function onReceivedinput(input, playerIndex) {
 
-        config.eventHandlers.onLog("received input " + input + " for player " + playerIndex);
-        worldState.players[playerIndex].matchInputs.push(input);
+        //config.eventHandlers.onLog("received input " + input + " for player " + playerIndex);
+        var player = worldState.players[playerIndex];
+        if (player) {
+            player.matchInputs.push(input);
+        }
     }
 
     function serverUpdateLoopTick(delta) {
+
+        var startTime = new Date();
 
         matchUpdate.frameCount++;
 
@@ -130,7 +135,7 @@ module.exports = function(io, worldState) {
 
                 var input = inputsToHandle[0];
 
-                config.eventHandlers.onLog("handling input " + input);
+                //config.eventHandlers.onLog("handling input " + input);
 
                 switch (input) {
 
@@ -151,5 +156,9 @@ module.exports = function(io, worldState) {
         matchUpdate.players[1].pos = worldState.players[1].pos;
 
         io.emit(config.events.matchUpdate, matchUpdate);
+
+        var endTime = new Date();
+
+        config.eventHandlers.onLog("serverUpdateLoopTick: " + (endTime.getTime() - startTime.getTime()))
     }
 };
