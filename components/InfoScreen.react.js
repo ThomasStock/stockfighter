@@ -13,6 +13,7 @@ module.exports = InfoScreen = React.createClass({
     render: function() {
         
         var worldState = this.props.worldState;
+        var playerInfo = this.props.playerInfo;
         
         var playerDiv = function(player, playerNumber){
             
@@ -27,25 +28,15 @@ module.exports = InfoScreen = React.createClass({
             }
         };
         
-        var gameStartMessage = function(){
-            
-            if(worldState.matchState == config.matchStates.matchStarting){
-                
-                return (
-                    <div>The game is about to start!</div>
-                );
-            }
-            
-        };
+        var playerInfo = <p>connecting...</p>
+        if(playerInfo.isConnected){
+            playerInfo = <p>connected as player {playerInfo.playerNumber}!</p>
+        }
         
         return (   
             
-            <div className="info-screen">
+            <div className="ask-name">
                 <h1>StockFighter</h1>
-                <p>
-                    Surf to <a href={config.playUrl} target="_blank">{config.playUrl}</a> in another browser tab or on a mobile device to enter as player.<br/>
-                    (Open multiple browser tabs to play against yourself.)
-                </p>
                 <p>
                     The game currently resets after 20 seconds. Refresh the controller(s) to play again.
                 </p>
@@ -53,7 +44,7 @@ module.exports = InfoScreen = React.createClass({
                     {playerDiv(worldState.players[0], 1)}
                     {playerDiv(worldState.players[1], 2)}
                 </div>
-                {gameStartMessage()}
+                {playerInfo}
             </div>
         );
     }

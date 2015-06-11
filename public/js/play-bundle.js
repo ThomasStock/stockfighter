@@ -217,7 +217,7 @@ module.exports = {
         
         viewer: "viewer",
         controller: "controller",
-        server: "server"
+        controllerWithView: "controllerWithView"
     },
     
     eventHandlers: {
