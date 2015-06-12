@@ -6,8 +6,8 @@ module.exports = InfoScreen = React.createClass({displayName: "InfoScreen",
 
     // Called once, after initial rendering in the browser
     componentDidMount: function() {
-
-
+        
+        
     },
 
     // Render the component
