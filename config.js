@@ -5,17 +5,17 @@ module.exports = {
     events: {
         
         identify: "identify",
+        identified: "identified",
         log: "log",
         player1Joined: "player1Joined",
         player2Joined: "player2Joined",
-        noMorePlayersNeeded: "noMorePlayersNeeded",
-        acceptedAsPlayer: "acceptedAsPlayer",
         matchStarting: "matchStarting",
         matchStarted: "matchStarted",
         requestEndMatch: "requestEndMatch",
         matchEnded: "matchEnded",
         matchInput: "matchInput",
-        matchUpdate: "matchUpdate"
+        matchUpdate: "matchUpdate",
+        worldStateUpdate: "worldStateUpdate"
     },
     
     identifiers: {
@@ -42,6 +42,8 @@ module.exports = {
       matchStarted: "matchStarted",
       matchEnded: "matchEnded"
     },
+    
+
     
     playUrl: "https://stockfighter-tstock.c9.io/play",
     

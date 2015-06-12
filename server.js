@@ -41,9 +41,13 @@ var server = http.createServer(app).listen(port, function() {
 //initialize the world state (empty game, nobody connected)
 var worldState = new WorldState();
 
-
 //initialize socket.io server
 var io = require('socket.io')(server);
+
+//when the worldstate changes, broadcast to all sockets
+worldState.onUpdate = function(worldState){
+    io.emit(config.events.worldStateUpdated, worldState);
+}
 
 config.eventHandlers.onLog("waiting for players");
 
@@ -68,76 +72,29 @@ io.on('connection', function(socket) {
 
         //check which type of client connected
         switch (identifier) {
-            case config.identifiers.controller:
-
-                //if the world needs no more players..
-                if (worldState.players[0] != null && worldState.players[1] != null) {
-
-                    config.eventHandlers.onLog(id + " disconnected because there are no more players needed");
-
-                    //let the client know
-                    socket.emit(config.events.noMorePlayersNeeded);
-
-                    //and then disconnect it.
-                    socket.disconnect();
+            case config.identifiers.controllerWithView:
+                
+                //try assign as player
+                var playerNumber = worldState.assignNewPlayer(id);
+                
+                //let the socket know if it got a playerNumber
+                socket.emit(config.events.identified, playerNumber);
+                
+                //can we start the game after (trying to) assign this player?
+                if(worldState.canMatchStart()){
+                    
+                    
+                    var match = worldState.startMatch(io);
                 }
-
-                //if we need a player1..
-                if (worldState.players[0] == null) {
-
-                    config.eventHandlers.onLog(id + " assigned as player 1");
-
-                    //assign the current socket to it
-                    worldState.players[0] = new Player(id);
-
-                    //let the socket know it's player 1
-                    socket.emit(config.events.acceptedAsPlayer, 1);
-
-                    //broadcast to everyone that a player 1 has entered
-                    io.emit(config.events.player1Joined, worldState);
-                }
-                else //we need a player2..
-                {
-
-                    config.eventHandlers.onLog(id + " assigned as player 2");
-
-                    //assign the current socket to it
-                    worldState.players[1] = new Player(id);
-
-                    //let the socket know it's player 2
-                    socket.emit(config.events.acceptedAsPlayer, 2);
-
-                    //broadcast to everyone that a player 2 has entered
-                    io.emit(config.events.player2Joined, worldState);
-                }
+                
+                break;
+            
 
                 //at this point we know a player joined the game. 
                 //check if we now have 2 players and can start the match
                 if (worldState.players[0] != null && worldState.players[1] != null) {
 
-                    config.eventHandlers.onLog("starting match..");
-
-                    //update matchState
-                    worldState.matchState = config.matchStates.matchStarting;
-
-                    //let everyone know we can start the match
-                    io.emit(config.events.matchStarting, worldState);
-
-                    //initialize a new match
-                    var match = new Match(io, worldState);
-
-                    //start the match after 3 seconds
-                    setTimeout(function() {
-
-                        //some temp stuff
-                        worldState.players[0].name = "Player1";
-                        worldState.players[1].name = "Player2";
-                        worldState.players[0].color = config.colors.player1Color;
-                        worldState.players[1].color = config.colors.player2Color;
-
-                        config.eventHandlers.onLog("match started!");
-                        match.start();
-                    }, 1000);
+                   
                 }
 
                 break;

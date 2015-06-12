@@ -19,23 +19,27 @@ module.exports = InfoScreen = React.createClass({
             
             if(player == null){
                 
-                return <div>Waiting on Player{playerNumber}</div>
+                return <div>Waiting on Player{playerNumber} ...</div>
                 
             }else{
                 
-                return <div>Player{playerNumber} connected!</div>
+                return <div>Player{playerNumber} has entered the game!</div>
                 
             }
         };
         
-        var playerInfo = <p>connecting...</p>
-        if(playerInfo.isConnected){
-            playerInfo = <p>connected as player {playerInfo.playerNumber}!</p>
+        var playerNumberInfo = "";
+        if(playerInfo.isIdentified){
+            if(playerInfo.playerNumber == null){
+                playerNumberInfo = "Sorry, maximum number of players reached. Please try again later by refreshing the game.";
+            }else{
+                playerNumberInfo = "You are assigned as Player" + playerInfo.playerNumber;
+            }
         }
         
         return (   
             
-            <div className="ask-name">
+            <div>
                 <h1>StockFighter</h1>
                 <p>
                     The game currently resets after 20 seconds. Refresh the controller(s) to play again.
@@ -44,7 +48,11 @@ module.exports = InfoScreen = React.createClass({
                     {playerDiv(worldState.players[0], 1)}
                     {playerDiv(worldState.players[1], 2)}
                 </div>
-                {playerInfo}
+                <div className="player-info">
+                    <div>{playerInfo.isConnected ? 'Connected!' : 'Connecting...'}</div>
+                    <div>{playerInfo.isIdentified ? 'Identified!' : 'Identifying...'}</div>
+                    <div>{playerNumberInfo}</div>
+                </div>
             </div>
         );
     }

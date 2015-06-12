@@ -20,23 +20,27 @@ module.exports = InfoScreen = React.createClass({displayName: "InfoScreen",
             
             if(player == null){
                 
-                return React.createElement("div", null, "Waiting on Player", playerNumber)
+                return React.createElement("div", null, "Waiting on Player", playerNumber, " ...")
                 
             }else{
                 
-                return React.createElement("div", null, "Player", playerNumber, " connected!")
+                return React.createElement("div", null, "Player", playerNumber, " has entered the game!")
                 
             }
         };
         
-        var playerInfo = React.createElement("p", null, "connecting...")
-        if(playerInfo.isConnected){
-            playerInfo = React.createElement("p", null, "connected as player ", playerInfo.playerNumber, "!")
+        var playerNumberInfo = "";
+        if(playerInfo.isIdentified){
+            if(playerInfo.playerNumber == null){
+                playerNumberInfo = "Sorry, maximum number of players reached. Please try again later by refreshing the game.";
+            }else{
+                playerNumberInfo = "You are assigned as Player" + playerInfo.playerNumber;
+            }
         }
         
         return (   
             
-            React.createElement("div", {className: "ask-name"}, 
+            React.createElement("div", null, 
                 React.createElement("h1", null, "StockFighter"), 
                 React.createElement("p", null, 
                     "The game currently resets after 20 seconds. Refresh the controller(s) to play again."
@@ -45,7 +49,11 @@ module.exports = InfoScreen = React.createClass({displayName: "InfoScreen",
                     playerDiv(worldState.players[0], 1), 
                     playerDiv(worldState.players[1], 2)
                 ), 
-                playerInfo
+                React.createElement("div", {className: "player-info"}, 
+                    React.createElement("div", null, playerInfo.isConnected ? 'Connected!' : 'Connecting...'), 
+                    React.createElement("div", null, playerInfo.isIdentified ? 'Identified!' : 'Identifying...'), 
+                    React.createElement("div", null, playerNumberInfo)
+                )
             )
         );
     }
@@ -198,7 +206,8 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
         return {
             playerInfo: {
                 playerNumber: null,
-                isConnected: false
+                isConnected: false,
+                isAssigned: false
             }
         };
     },
@@ -263,32 +272,19 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
         
     },
     
-    onNameSubmitted: function(name){
-        
-        cookie.save('name', name);
-    },
     
     onIdentified: function(playerNumber){
         
-        if(playerNumber == null || typeof(playerNumber) == "undefined"){
-            
-            console.log("no more players needed..");
-            this.setState({noMorePlayersNeeded: true});
-            
-        }else{
-            this.setState({playerNumber: playerNumber});
-        }
-        
-        this.setState({isIdentified: true});
+        var newState = state.playerInfo;
+        newState.playerNumber = playerNumber;
+        newState.isIdentified = true;
+        this.setState(newState);
     },
     
     // Called one, before initial rendering on the server
     componentWillMount: function(){
         
-/*        var name = cookie.load('name');
-        var hasName = !(nameFromCookie == null || typeof(nameFromCookie) == undefined);
-        
-        setState({name: name, hasName: hasName});*/
+        var playerInfo = this.state.playerInfo;
         
         //hardcoded for now
         var identifier = config.identifiers.controllerWithView;
@@ -297,12 +293,24 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
 
         socket = io.connect();
         
-/*        //identify ourself to the server
-        socket.emit(config.events.identify, config.identifiers.controllerWithView);
+        socket.on("connection", function(){
+          
+            playerInfo.isConnected = true;
+            setState({playerInfo: playerInfo});
+           
+            //identify ourself to the server
+            socket.emit(config.events.identify, config.identifiers.controllerWithView);
+            
+            //when the server asks us to log something
+            socket.on(config.events.log, config.eventHandlers.onLog);
+            
+            //when the server identified us
+            socket.on(config.events.identified, this.onIdentified);
+            
+        });
         
-        //when identified we receive a playerNumber
-        socket.on(config.events.identified, this.onIdentified);*/
 
+        
         //set event handler for when the server asks us to log something
         socket.on(config.events.log, config.eventHandlers.onLog);
 
@@ -333,14 +341,14 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
     render: function() {
         
         var worldState = this.props.worldState;
-        var state = this.state;
+        var playerInfo = this.state.playerInfo;
 
         
         if(worldState.matchState == config.matchStates.waitingForPlayers){
             
             return (
                 React.createElement("div", {className: "stockfighter"}, 
-                    React.createElement(InfoScreen, {worldState: worldState, playerInfo: state.playerInfo})
+                    React.createElement(InfoScreen, {worldState: worldState, playerInfo: playerInfo})
                 )
             );
         }
@@ -373,17 +381,17 @@ module.exports = {
     events: {
         
         identify: "identify",
+        identified: "identified",
         log: "log",
         player1Joined: "player1Joined",
         player2Joined: "player2Joined",
-        noMorePlayersNeeded: "noMorePlayersNeeded",
-        acceptedAsPlayer: "acceptedAsPlayer",
         matchStarting: "matchStarting",
         matchStarted: "matchStarted",
         requestEndMatch: "requestEndMatch",
         matchEnded: "matchEnded",
         matchInput: "matchInput",
-        matchUpdate: "matchUpdate"
+        matchUpdate: "matchUpdate",
+        worldStateUpdate: "worldStateUpdate"
     },
     
     identifiers: {
@@ -410,6 +418,8 @@ module.exports = {
       matchStarted: "matchStarted",
       matchEnded: "matchEnded"
     },
+    
+
     
     playUrl: "https://stockfighter-tstock.c9.io/play",
     

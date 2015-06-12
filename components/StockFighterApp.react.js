@@ -11,7 +11,8 @@ module.exports = StockFighterApp = React.createClass({
         return {
             playerInfo: {
                 playerNumber: null,
-                isConnected: false
+                isConnected: false,
+                isAssigned: false
             }
         };
     },
@@ -76,32 +77,19 @@ module.exports = StockFighterApp = React.createClass({
         
     },
     
-    onNameSubmitted: function(name){
-        
-        cookie.save('name', name);
-    },
     
     onIdentified: function(playerNumber){
         
-        if(playerNumber == null || typeof(playerNumber) == "undefined"){
-            
-            console.log("no more players needed..");
-            this.setState({noMorePlayersNeeded: true});
-            
-        }else{
-            this.setState({playerNumber: playerNumber});
-        }
-        
-        this.setState({isIdentified: true});
+        var newState = state.playerInfo;
+        newState.playerNumber = playerNumber;
+        newState.isIdentified = true;
+        this.setState(newState);
     },
     
     // Called one, before initial rendering on the server
     componentWillMount: function(){
         
-/*        var name = cookie.load('name');
-        var hasName = !(nameFromCookie == null || typeof(nameFromCookie) == undefined);
-        
-        setState({name: name, hasName: hasName});*/
+        var playerInfo = this.state.playerInfo;
         
         //hardcoded for now
         var identifier = config.identifiers.controllerWithView;
@@ -110,12 +98,24 @@ module.exports = StockFighterApp = React.createClass({
 
         socket = io.connect();
         
-/*        //identify ourself to the server
-        socket.emit(config.events.identify, config.identifiers.controllerWithView);
+        socket.on("connection", function(){
+          
+            playerInfo.isConnected = true;
+            setState({playerInfo: playerInfo});
+           
+            //identify ourself to the server
+            socket.emit(config.events.identify, config.identifiers.controllerWithView);
+            
+            //when the server asks us to log something
+            socket.on(config.events.log, config.eventHandlers.onLog);
+            
+            //when the server identified us
+            socket.on(config.events.identified, this.onIdentified);
+            
+        });
         
-        //when identified we receive a playerNumber
-        socket.on(config.events.identified, this.onIdentified);*/
 
+        
         //set event handler for when the server asks us to log something
         socket.on(config.events.log, config.eventHandlers.onLog);
 
@@ -146,14 +146,14 @@ module.exports = StockFighterApp = React.createClass({
     render: function() {
         
         var worldState = this.props.worldState;
-        var state = this.state;
+        var playerInfo = this.state.playerInfo;
 
         
         if(worldState.matchState == config.matchStates.waitingForPlayers){
             
             return (
                 <div className="stockfighter">
-                    <InfoScreen worldState={worldState} playerInfo={state.playerInfo} />
+                    <InfoScreen worldState={worldState} playerInfo={playerInfo} />
                 </div>
             );
         }
