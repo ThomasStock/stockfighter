@@ -1,5 +1,5 @@
 var React = require('react'),
-    WorldState = require('./../models/WorldState'),
+    World = require('./../models/World'),
     config = require('./../config');
 
 module.exports = ControllerApp = React.createClass({
@@ -60,7 +60,7 @@ module.exports = ControllerApp = React.createClass({
     },
     
     //when a match ends
-    onMatchEnded: function(worldState){
+    onMatchEnded: function(world){
         
         console.log("match ended");
         

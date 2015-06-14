@@ -12,28 +12,28 @@ module.exports = InfoScreen = React.createClass({
     // Render the component
     render: function() {
         
-        var worldState = this.props.worldState;
+        var world = this.props.world;
         var playerInfo = this.props.playerInfo;
         
-        var playerDiv = function(player, playerNumber){
+        var playerDiv = function(player, playerIndex){
             
             if(player == null){
                 
-                return <div>Waiting on Player{playerNumber} ...</div>
+                return <div>Waiting on Player {playerIndex} ...</div>
                 
             }else{
                 
-                return <div>Player{playerNumber} has entered the game!</div>
+                return <div>{player.name} has entered the game!</div>
                 
             }
         };
         
         var playerNumberInfo = "";
         if(playerInfo.isIdentified){
-            if(playerInfo.playerNumber == null){
+            if(playerInfo.playerIndex == null){
                 playerNumberInfo = "Sorry, maximum number of players reached. Please try again later by refreshing the game.";
             }else{
-                playerNumberInfo = "You are assigned as Player" + playerInfo.playerNumber;
+                playerNumberInfo = "You are assigned as Player " + (playerInfo.playerIndex + 1);
             }
         }
         
@@ -42,14 +42,13 @@ module.exports = InfoScreen = React.createClass({
             <div>
                 <h1>StockFighter</h1>
                 <p>
-                    The game currently resets after 20 seconds. Refresh the controller(s) to play again.
+                    The game currently resets after 20 seconds. Refresh to play again.
                 </p>
                 <div className="players">
-                    {playerDiv(worldState.players[0], 1)}
-                    {playerDiv(worldState.players[1], 2)}
+                    {playerDiv(world.players[0], 1)}
+                    {playerDiv(world.players[1], 2)}
                 </div>
                 <div className="player-info">
-                    <div>{playerInfo.isConnected ? 'Connected!' : 'Connecting...'}</div>
                     <div>{playerInfo.isIdentified ? 'Identified!' : 'Identifying...'}</div>
                     <div>{playerNumberInfo}</div>
                 </div>

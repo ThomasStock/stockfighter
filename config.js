@@ -15,7 +15,7 @@ module.exports = {
         matchEnded: "matchEnded",
         matchInput: "matchInput",
         matchUpdate: "matchUpdate",
-        worldStateUpdate: "worldStateUpdate"
+        worldUpdate: "worldUpdate"
     },
     
     identifiers: {

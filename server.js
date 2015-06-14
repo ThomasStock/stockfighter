@@ -4,10 +4,9 @@ var express = require('express'),
     http = require('http'),
     bodyParser = require('body-parser'),
     routes = require('./routes'),
-    WorldState = require('./models/WorldState'),
-    Player = require('./models/Player'),
-    config = require('./config'),
-    Match = require('./match');
+    World = require('./models/World'),
+    config = require('./config')
+
 
 // Create an express instance and set a port variable
 var app = express();
@@ -19,10 +18,10 @@ app.engine('handlebars', exphbs({
 }));
 app.set('view engine', 'handlebars');
 
-// Disable etag headers on responses
+// http://www.askapache.com/htaccess/apache-speed-etags.html
 app.disable('etag');
 
-// parse application/x-www-form-urlencoded
+// parse application/x-www-form-urlencoded 
 app.use(bodyParser.urlencoded({
     extended: false
 }));
@@ -38,16 +37,16 @@ var server = http.createServer(app).listen(port, function() {
     console.log('Express server listening on port ' + port);
 });
 
-//initialize the world state (empty game, nobody connected)
-var worldState = new WorldState();
-
 //initialize socket.io server
 var io = require('socket.io')(server);
 
+//initialize the world state (empty game, nobody connected)
+var world = new World(io);
+
 //when the worldstate changes, broadcast to all sockets
-worldState.onUpdate = function(worldState){
-    io.emit(config.events.worldStateUpdated, worldState);
-}
+world.onUpdate = function() {
+    io.emit(config.events.worldUpdate, world);
+};
 
 config.eventHandlers.onLog("waiting for players");
 
@@ -73,72 +72,36 @@ io.on('connection', function(socket) {
         //check which type of client connected
         switch (identifier) {
             case config.identifiers.controllerWithView:
-                
+
                 //try assign as player
-                var playerNumber = worldState.assignNewPlayer(id);
-                
+                var playerIndex = world.assignNewPlayer(id);
+
                 //let the socket know if it got a playerNumber
-                socket.emit(config.events.identified, playerNumber);
-                
+                socket.emit(config.events.identified, playerIndex);
+
+                //push info to clients
+                world.broadcastUpdate();
+
                 //can we start the game after (trying to) assign this player?
-                if(worldState.canMatchStart()){
-                    
-                    
-                    var match = worldState.startMatch(io);
-                }
-                
-                break;
-            
-
-                //at this point we know a player joined the game. 
-                //check if we now have 2 players and can start the match
-                if (worldState.players[0] != null && worldState.players[1] != null) {
-
-                   
+                if (world.canMatchStart()) {
+                    var match = world.startMatch();
                 }
 
                 break;
-            case config.identifiers.viewer:
-                
-                //static setting for debugging purposes
-                if (config.runmode == config.runmodes.waitOnViewer) {
-
-                    //test mode without controllers, immediate game start
-                
-                    worldState.players[0] = new Player(1000, "computer1");
-                    worldState.players[1] = new Player(2000, "computer2");
-                    worldState.players[0].color = config.colors.player1Color;
-                    worldState.players[1].color = config.colors.player2Color;
-                
-                    var match = new Match(io, worldState);
-                
-                    config.eventHandlers.onLog("starting match now!");
-                    match.start();
-                }
-
-                //when the viewer requests the game to end.. 
-                socket.on(config.events.requestEndMatch, function(data) {
-
-                    config.eventHandlers.onLog("ending match");
-
-                    worldState.reset(io);
-
-                });
-
-                break;
-
         }
     });
 
     //when the socket emits a disconnect event..
     socket.on("disconnect", function() {
-
+        config.eventHandlers.onLog(socket.id + " disconnected.");
+        
+        world.removePlayer(socket.id);
     });
 
 });
 
 // Index Route
-app.get('/', routes.index(worldState));
+app.get('/', routes.index(world));
 
 // Play Route
 app.get('/play', routes.play());

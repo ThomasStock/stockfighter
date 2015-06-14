@@ -1,19 +1,13 @@
 var React = require('react'),
     config = require('./../config');
+    Controller = require('./../models/Controller');
 
 module.exports = Match = React.createClass({
 
     game: null, //Phaser.Game
-
     matchUpdate: null, //object contains the latest information received from the server
-
     sprites: {}, //container for sprites that must be updated
 
-    endMatch: function() {
-
-        //request the server to end the match
-        socket.emit(config.events.requestEndMatch);
-    },
 
     getSize: function() {
         return document.getElementById('surface').getBoundingClientRect();
@@ -42,6 +36,8 @@ module.exports = Match = React.createClass({
         var game = self.game;
         var sprites = self.sprites;
         var props = self.props;
+        
+        //set up environment
 
         var sky = game.add.sprite(0, 0, 'sky');
         sky.width = game.world.width;
@@ -50,13 +46,28 @@ module.exports = Match = React.createClass({
         var ground = game.add.sprite(0, game.world.height - 120, 'ground');
         ground.height = 120;
         ground.width = game.world.width;
+        
+        //setup players
 
-        sprites.player1 = game.add.sprite(props.worldState.players[0].pos.x, props.worldState.players[0].pos.y, 'dude');
+        sprites.player1 = game.add.sprite(props.world.players[0].pos.x, props.world.players[0].pos.y, 'dude');
         sprites.player1.frame = 5;
 
 
-        sprites.player2 = game.add.sprite(props.worldState.players[1].pos.x, props.worldState.players[1].pos.y, 'dude');
+        sprites.player2 = game.add.sprite(props.world.players[1].pos.x, props.world.players[1].pos.y, 'dude');
         sprites.player2.frame = 0;
+        
+        //setup inputs
+        
+        var controller = new Controller();
+        var keyboard = game.input.keyboard;
+        
+        var cursorKeys = keyboard.createCursorKeys();
+        cursorKeys.left.onDown.add(controller.addCommand, controller);
+        cursorKeys.right.onDown.add(controller.addCommand, controller);
+        cursorKeys.up.onDown.add(controller.addCommand, controller);
+        cursorKeys.down.onDown.add(controller.addCommand, controller);
+        
+        controller.start();
 
     },
 
@@ -65,16 +76,19 @@ module.exports = Match = React.createClass({
         
         //console.log("in update");
 
-        var sprites = this.sprites;
-        var matchUpdate = this.matchUpdate;
+        if (this.matchUpdate != null) {
+            
+            config.eventHandlers.onLog("handling matchUpdate " + this.matchUpdate.players[0].pos.x)
+            
+            var sprites = this.sprites;
 
-        if (matchUpdate != null) {
+            sprites.player1.x = this.matchUpdate.players[0].pos.x;
+            sprites.player1.y = this.matchUpdate.players[0].pos.y;
 
-            sprites.player1.x = matchUpdate.players[0].pos.x;
-            sprites.player1.y = matchUpdate.players[0].pos.y;
-
-            sprites.player2.x = matchUpdate.players[1].pos.x;
-            sprites.player2.y = matchUpdate.players[1].pos.y;
+            sprites.player2.x = this.matchUpdate.players[1].pos.x;
+            sprites.player2.y = this.matchUpdate.players[1].pos.y;
+            
+            this.matchUpdate = null;
         }
     },
 
@@ -115,16 +129,13 @@ module.exports = Match = React.createClass({
         //http://cssdeck.com/labs/emcxdwuz
 
         if (this.props.isEndMatchRequested) {
-            return <div > ending match.. < /div>;
+            return <div>ending match..</div>;
         }
 
-
-
-
-        return ( < div id = "match-view" >
-            < div id = "surface" >
-
-            < /div> < /div>
+        return ( 
+            <div id="match-view">
+                <div id="surface"></div>
+            </div>
         );
     }
 });

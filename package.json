@@ -8,6 +8,8 @@
     "dateformat": "^1.0.11",
     "express": "^5.0.0-alpha.1",
     "express-handlebars": "^2.0.1",
+    "game-loop": "0.0.1",
+    "gameloop": "^0.3.1",
     "node-gameloop": "^0.1.0",
     "react": "^0.13.3",
     "react-cookie": "^0.2.3",

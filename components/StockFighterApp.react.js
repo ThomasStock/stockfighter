@@ -10,78 +10,17 @@ module.exports = StockFighterApp = React.createClass({
 
         return {
             playerInfo: {
-                playerNumber: null,
-                isConnected: false,
+                playerIndex: null,
                 isAssigned: false
-            }
+            },
+            world: this.props.world
         };
     },
 
-    //when the match is starting
-    onMatchStarting: function(worldState){
+    onIdentified: function(playerIndex){
         
-        console.log("match will start");
-        
-        this.setState({worldState: worldState});
-        
-    },
-    
-    //when the match is started
-    onMatchStarted: function(worldState){
-        
-        console.log("match has started");
-        
-        this.setState({worldState: worldState});
-        
-    },
-    
-    //when player 1 joined
-    onPlayer1Joined: function(worldState){
-        
-        console.log("player 1 joined");
-        
-        this.setState({worldState: worldState});
-        
-    },
-    
-    //when player 2 joined
-    onPlayer2Joined: function(worldState){
-        
-        console.log("player 2 joined");
-        
-        this.setState({worldState: worldState});
-        
-    },
-    
-        
-    onAcceptedAsPlayer: function(playerNumber){
-        
-        console.log("accepted as player " + playerNumber);
-        
-        this.setState({playerNumber: playerNumber});
-    },
-    
-    onNoMorePlayersNeeded: function(){
-        
-        console.log("no more players needed..");
-        
-        this.setState({noMorePlayersNeeded: true});
-    },
-    
-    //when a match ends
-    onMatchEnded: function(worldState){
-        
-        console.log("match ended");
-        
-        this.setState({worldState: worldState});
-        
-    },
-    
-    
-    onIdentified: function(playerNumber){
-        
-        var newState = state.playerInfo;
-        newState.playerNumber = playerNumber;
+        var newState = this.state.playerInfo;
+        newState.playerIndex = playerIndex;
         newState.isIdentified = true;
         this.setState(newState);
     },
@@ -89,50 +28,30 @@ module.exports = StockFighterApp = React.createClass({
     // Called one, before initial rendering on the server
     componentWillMount: function(){
         
-        var playerInfo = this.state.playerInfo;
-        
-        //hardcoded for now
-        var identifier = config.identifiers.controllerWithView;
+        var self = this;
         
         config.eventHandlers.onLog("initializing socket");
 
         socket = io.connect();
         
-        socket.on("connection", function(){
-          
-            playerInfo.isConnected = true;
-            setState({playerInfo: playerInfo});
-           
-            //identify ourself to the server
-            socket.emit(config.events.identify, config.identifiers.controllerWithView);
-            
-            //when the server asks us to log something
-            socket.on(config.events.log, config.eventHandlers.onLog);
-            
-            //when the server identified us
-            socket.on(config.events.identified, this.onIdentified);
-            
-        });
+        //identify ourself to the server
+        socket.emit(config.events.identify, config.identifiers.controllerWithView);
         
-
-        
-        //set event handler for when the server asks us to log something
+        //when the server asks us to log something
         socket.on(config.events.log, config.eventHandlers.onLog);
-
-/*        //set event handler for when the server tells us player 1 joined
-        socket.on(config.events.player1Joined, this.onPlayer1Joined);
         
-        //set event handler for when the server tells us player 2 joined
-        socket.on(config.events.player2Joined, this.onPlayer2Joined);
-
-        //set event handler for when the server tells us the match can start
-        socket.on(config.events.matchStarting, this.onMatchStarting);
+        //when the server identified us
+        socket.on(config.events.identified, self.onIdentified);
         
-        //set event handler for when the server tells us the match has started
-        socket.on(config.events.matchStarted, this.onMatchStarted);
+        socket.on(config.events.matchEnded, function(){
+            self.setState({playerInfo: self.getInitialState().playerInfo});
+            socket.emit(config.events.identify, config.identifiers.controllerWithView);
+        })
         
-        //set event handler for when the server tells us the match has started
-        socket.on(config.events.matchEnded, this.onMatchEnded);*/
+        //event handler for general world updates
+        socket.on(config.events.worldUpdate, function(world){ 
+            self.setState({world: world});
+        });
     },
 
 
@@ -145,33 +64,28 @@ module.exports = StockFighterApp = React.createClass({
     // Render the component
     render: function() {
         
-        var worldState = this.props.worldState;
+        var world = this.state.world;
         var playerInfo = this.state.playerInfo;
 
         
-        if(worldState.matchState == config.matchStates.waitingForPlayers){
+        if(world.matchState == config.matchStates.waitingForPlayers){
             
             return (
                 <div className="stockfighter">
-                    <InfoScreen worldState={worldState} playerInfo={playerInfo} />
+                    <InfoScreen world={world} playerInfo={playerInfo} />
                 </div>
             );
         }
         
-/*        if(worldState.matchState == config.matchStates.matchStarted){
+        if(world.matchState == config.matchStates.matchStarted){
             
-            return <Match worldState={worldState}/>
+            return <Match world={world}/>
         }
         
-        if(worldState.matchState == config.matchStates.matchEnded){
+        if(world.matchState == config.matchStates.matchStarting){
             
-            return <div>refresh to restart game</div>
+            return <div>Match is starting..</div>
         }
-        
-        if(!worldState.matchState){
-            
-            return <div>loading..</div>
-        }*/
 
         return <div>cant render stockfighter</div>
     }

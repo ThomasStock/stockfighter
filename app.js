@@ -6,6 +6,6 @@ var initialState = JSON.parse(document.getElementById('initial-state').innerHTML
 
 // Render the components, picking up where react left off on the server
 React.render(
-  <StockFighterApp worldState={initialState}/>, 
+  <StockFighterApp world={initialState}/>, 
   document.getElementById('react-app')
 );
