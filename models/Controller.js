@@ -2,7 +2,7 @@ var config = require('./../config');
 var gameloop = require('game-loop');
 
 //used on the client
-module.exports = function() {
+module.exports = function(game) {
 
     //private variables
 
@@ -10,9 +10,13 @@ module.exports = function() {
 
     var controller = {
 
-        addCommand: addCommand,
-
+        isLeftKeyDown: false,
+        isRightKeyDown: false,
+        isDownKeyDown: false,
+        
         commands: [],
+        
+        onCommand: onCommand,
 
         start: start,
 
@@ -20,7 +24,8 @@ module.exports = function() {
 
         inputUpdateLoopTick: inputUpdateLoopTick,
 
-        processCommands: processCommands
+        processCommands: processCommands,
+        addDownKeysToCommands: addDownKeysToCommands
     }
 
 
@@ -39,26 +44,47 @@ module.exports = function() {
 
     }
 
-    function addCommand(context) {
+    function onCommand(context) {
 
         var self = this;
+        
+        config.eventHandlers.onLog(context.event.keyIdentifier + " justdown:" + context.justDown + " isdown:" + context.isDown + " justup:" + context.justUp + " isup:" + context.isUp)
 
         switch (context.keyCode) {
-            case Phaser.Keyboard.LEFT:
-                self.commands.push(config.matchInputs.left);
-                break;
-            case Phaser.Keyboard.RIGHT:
-                self.commands.push(config.matchInputs.right);
-                break;
-            case Phaser.Keyboard.UP:
-                self.commands.push(config.matchInputs.jump);
-                break;
             case Phaser.Keyboard.DOWN:
-                self.commands.push(config.matchInputs.duck);
+                if(context.isDown)
+                    self.commands.push(config.matchInputs.down);
+                else
+                    self.commands.push(config.matchInputs.down_);
+                break;
+            case Phaser.Keyboard.SPACEBAR:
+                if(context.isDown)
+                    self.commands.push(config.matchInputs.punch);
                 break;
         }
     }
+    
+    /*
+    
+    function onUp(context) {
 
+        var self = this;
+        
+        config.eventHandlers.onLog(context.event.keyIdentifier + " justdown:" + context.justDown + " isdown:" + context.isDown + " justup:" + context.justUp + " isup:" + context.isUp)
+
+        switch (context.keyCode) {
+            case Phaser.Keyboard.LEFT:
+                self.commands.push(config.matchInputs.left_);
+                break;
+            case Phaser.Keyboard.RIGHT:
+                self.commands.push(config.matchInputs.right_);
+                break;
+            case Phaser.Keyboard.DOWN:
+                self.commands.push(config.matchInputs.duck_);
+                break;
+        }
+    }
+*/
     //private
 
     function stop() {
@@ -67,11 +93,13 @@ module.exports = function() {
     }
 
     function inputUpdateLoopTick() {
-
+        
         this.processCommands();
     }
 
     function processCommands() {
+        
+        this.addDownKeysToCommands();
 
         var commandCount = this.commands.length;
         if (commandCount > 0) {
@@ -80,5 +108,12 @@ module.exports = function() {
             this.commands = [];
         }
 
+    }
+    
+    function addDownKeysToCommands(){
+        
+        if(this.isDownKeyDown) this.commands.push(config.matchInputs.down);
+        if(this.isRightKeyDown) this.commands.push(config.matchInputs.right);
+        if(this.isLeftKeyDown) this.commands.push(config.matchInputs.left);
     }
 };

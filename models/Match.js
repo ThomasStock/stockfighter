@@ -32,14 +32,14 @@ module.exports = function(io, world) {
         console.log("Match ");
 
     }
-    
-    function onUpdate(){
-        
-        if(stateChanged){
-            
+
+    function onUpdate() {
+
+        if (stateChanged) {
+
             config.eventHandlers.onLog("emitting");
             io.emit(config.events.matchUpdate, matchUpdate);
-            
+
             stateChanged = false;
         }
     }
@@ -55,6 +55,8 @@ module.exports = function(io, world) {
         for (var i = 0; i < 2; i++) {
 
             (function(playerIndex) {
+                
+                if(world.players[i] == null) return;
 
                 var id = world.players[i].id;
                 var socket = io.sockets.connected[id];
@@ -72,48 +74,161 @@ module.exports = function(io, world) {
         // start the loop at 30 fps (1000/30ms per frame) and grab its id 
         serverUpdateLoop = gameloop.setGameLoop(serverUpdateLoopTick, 1000 / config.loops.serverUpdateLoop);
 
-        // stop the loop 2 seconds later 
+        // stop the loop 20 seconds later 
         setTimeout(function() {
             console.log('20s passed, stopping the game loop');
             stop();
-        }, 20000);
+        }, 600000);
 
+    }
+
+    function onReceivedinput(input, playerIndex) {
+
+        // config.eventHandlers.onLog("received input " + input + " for player " + playerIndex);
+        var player = world.players[playerIndex];
+        if (player) {
+            player.matchInputs.push(input);
+            //config.eventHandlers.onLog("pushed input " + input + " for player " + playerIndex);
+        }
+    }
+    
+    function canMoveLeftRight(player){
+        
+        return player.state == config.playerStates.normal;
+    }
+
+    function serverUpdateLoopTick(delta) {
+
+        //var startTime = new Date();
+
+        frameCount++;
+
+        //for each player
+        for (var i = 0; i < 2; i++) {
+
+            var player = world.players[i];
+
+            if (!player) {
+                //config.eventHandlers.onLog("could not find player i");
+                continue;
+            }
+            
+            //punching is only 1 frame. Reset to normal if we were punching
+            if(player.state == config.playerStates.punching){
+                player.state = config.playerStates.normal;
+                stateChanged = true;
+            }
+
+            var inputsToHandle = player.matchInputs.splice(0, player.matchInputs.length);
+
+            if (inputsToHandle.length > 0) {
+
+                var input = inputsToHandle[0][0];
+
+                config.eventHandlers.onLog("handling input " + input);
+
+                switch (input) {
+
+                    case config.matchInputs.left:
+                        
+                        if(canMoveLeftRight(player)){
+                            
+                            player.pos.x -= 7;
+                            stateChanged = true;
+                        }
+                        break;
+
+                    case config.matchInputs.right:
+                        
+                        if(canMoveLeftRight(player)){
+
+                            player.pos.x += 7;
+                            stateChanged = true;
+                        }
+                        break;
+                        
+                    case config.matchInputs.down:
+
+                        if(player.state == config.playerStates.normal){
+
+                            player.state = config.playerStates.ducked;
+                            stateChanged = true;
+                        }
+                        break;
+                        
+                    case config.matchInputs.down_:
+                        
+                        if(player.state == config.playerStates.ducked){
+
+                            player.state = config.playerStates.normal;
+                            stateChanged = true;
+                        }
+                        break;
+                    
+                    case config.matchInputs.punch:
+
+                        if(canPunch(player)){
+                            
+                            player.state = config.playerStates.punching;
+                            stateChanged = true;
+                        }
+                        break;
+                }
+            }
+        }
+
+
+        matchUpdate.players[0] = world.players[0];
+        matchUpdate.players[1] = world.players[1];
+
+        broadcastUpdate();
+
+        //var endTime = new Date();
+
+        //config.eventHandlers.onLog("serverUpdateLoopTick: " + (endTime.getTime() - startTime.getTime()))
+    }
+    
+    function canPunch(player){
+        return player.state == config.playerStates.normal;
     }
 
     function stop() {
 
         gameloop.clearGameLoop(serverUpdateLoop);
-        
+
         world.matchState = config.matchStates.matchEnded;
         world.broadcastUpdate();
-        
+
         io.emit(config.events.matchEnded);
-        
+
         world.reset();
     }
-    
-    function broadcastUpdate(){
-        
-        if(onUpdate != null){
+
+    function broadcastUpdate() {
+
+        if (onUpdate != null) {
             onUpdate();
         }
     }
-
-    //private methods
-
+    
+    
     function reset() {
-        
+
         frameCount = 0;
         stateChanged = true;
 
         world.players[0].pos = {
-            x: 100,
-            y: 600
+            x: 150,
+            y: 500
         };
+        
         world.players[1].pos = {
-            x: 924,
-            y: 600
+            x: 724,
+            y: 500
         };
+        
+        world.players[0].state = config.playerStates.normal;
+        world.players[1].state = config.playerStates.normal;
 
         serverUpdateLoop = null;
 
@@ -133,70 +248,11 @@ module.exports = function(io, world) {
                     y: world.players[i].pos.y
                 }
             };
+            
+            matchUpdate.players[i].state = world.players[i].state;
 
         }
-        
+
     }
 
-    function onReceivedinput(input, playerIndex) {
-
-       // config.eventHandlers.onLog("received input " + input + " for player " + playerIndex);
-        var player = world.players[playerIndex];
-        if (player) {
-            player.matchInputs.push(input);
-            //config.eventHandlers.onLog("pushed input " + input + " for player " + playerIndex);
-        }
-    }
-
-    function serverUpdateLoopTick(delta) {
-
-        //var startTime = new Date();
-
-        frameCount++;
-
-        //for each player
-        for (var i = 0; i < 2; i++) {
-
-            var player = world.players[i];
-
-            if (!player){
-                //config.eventHandlers.onLog("could not find player i");
-                continue;
-            }
-
-            var inputsToHandle = player.matchInputs.splice(0, player.matchInputs.length);
-
-            if (inputsToHandle.length > 0) {
-
-                var input = inputsToHandle[0][0];
-
-                config.eventHandlers.onLog("handling input " + input);
-
-                switch (input) {
-
-                    case config.matchInputs.left:
-
-                        player.pos.x -= 10;
-                        stateChanged = true;
-                        break;
-
-                    case config.matchInputs.right:
-
-                        player.pos.x += 10;
-                        stateChanged = true;
-                        break;
-                }
-            }
-        }
-        
-
-        matchUpdate.players[0] = world.players[0];
-        matchUpdate.players[1] = world.players[1];
-
-        broadcastUpdate();
-
-        //var endTime = new Date();
-
-        //config.eventHandlers.onLog("serverUpdateLoopTick: " + (endTime.getTime() - startTime.getTime()))
-    }
 };

@@ -61,7 +61,7 @@ module.exports = InfoScreen = React.createClass({displayName: "InfoScreen",
 
 },{"./../config":4,"react":166}],2:[function(require,module,exports){
 var React = require('react'),
-    config = require('./../config');
+    config = require('./../config'),
     Controller = require('./../models/Controller');
 
 module.exports = Match = React.createClass({displayName: "Match",
@@ -74,6 +74,18 @@ module.exports = Match = React.createClass({displayName: "Match",
     getSize: function() {
         return document.getElementById('surface').getBoundingClientRect();
     },
+    
+    translatePlayerState: function(state){
+        
+        switch(state){
+            
+            case config.playerStates.ducked:
+                return "duck";
+            case config.playerStates.punching:
+                return "punch";
+            default: return "1";
+        }
+    },
 
     preload: function() {
 
@@ -83,7 +95,7 @@ module.exports = Match = React.createClass({displayName: "Match",
         game.load.image('sky', 'assets/sky.png');
         game.load.image('ground', 'assets/platform.png');
         game.load.image('star', 'assets/star.png');
-        game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+        game.load.atlasJSONHash('dude', 'assets/dude.png', "assets/dude.json");
 
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         game.scale.windowConstraints = {
@@ -112,11 +124,12 @@ module.exports = Match = React.createClass({displayName: "Match",
         //setup players
 
         sprites.player1 = game.add.sprite(props.world.players[0].pos.x, props.world.players[0].pos.y, 'dude');
-        sprites.player1.frame = 5;
+        sprites.player1.frameName = "1";
 
 
         sprites.player2 = game.add.sprite(props.world.players[1].pos.x, props.world.players[1].pos.y, 'dude');
-        sprites.player2.frame = 0;
+        sprites.player2.frameName = "1";
+        sprites.player2.scale.x *= -1;
         
         //setup inputs
         
@@ -124,11 +137,30 @@ module.exports = Match = React.createClass({displayName: "Match",
         var keyboard = game.input.keyboard;
         
         var cursorKeys = keyboard.createCursorKeys();
-        cursorKeys.left.onDown.add(controller.addCommand, controller);
-        cursorKeys.right.onDown.add(controller.addCommand, controller);
-        cursorKeys.up.onDown.add(controller.addCommand, controller);
-        cursorKeys.down.onDown.add(controller.addCommand, controller);
         
+        //send jump command
+        cursorKeys.up.onDown.add(controller.onCommand, controller);
+        
+        //send duck command
+        cursorKeys.down.onDown.add(controller.onCommand, controller);
+        
+        //send duck_ command
+        cursorKeys.down.onUp.add(controller.onCommand, controller);
+        
+        
+        cursorKeys.left.onDown.add(function(){ controller.isLeftKeyDown = true; });
+        cursorKeys.right.onDown.add(function(){ controller.isRightKeyDown = true; });
+
+        
+        cursorKeys.left.onUp.add(function(){ controller.isLeftKeyDown = false; });
+        cursorKeys.right.onUp.add(function(){ controller.isRightKeyDown = false; });
+
+        //send punch command
+        var spaceKey = keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        spaceKey.onDown.add(controller.onCommand, controller);
+
+        
+        //start sending commands to the server
         controller.start();
 
     },
@@ -146,9 +178,11 @@ module.exports = Match = React.createClass({displayName: "Match",
 
             sprites.player1.x = this.matchUpdate.players[0].pos.x;
             sprites.player1.y = this.matchUpdate.players[0].pos.y;
+            sprites.player1.frameName = this.translatePlayerState(this.matchUpdate.players[0].state);
 
             sprites.player2.x = this.matchUpdate.players[1].pos.x;
             sprites.player2.y = this.matchUpdate.players[1].pos.y;
+            sprites.player2.frameName = this.translatePlayerState(this.matchUpdate.players[1].state);
             
             this.matchUpdate = null;
         }
@@ -250,7 +284,7 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
         
         socket.on(config.events.matchEnded, function(){
             self.setState({playerInfo: self.getInitialState().playerInfo});
-            socket.emit(config.events.identify, config.identifiers.controllerWithView);
+            //socket.emit(config.events.identify, config.identifiers.controllerWithView);
         })
         
         //event handler for general world updates
@@ -370,12 +404,26 @@ module.exports = {
     loops: {
         serverUpdateLoop: 30, // # of ms per frame for input/output processing on the server
         serverPhysicsLoop: 15, // # of ms
+        inputUpdateLoop: 30,
     },
     
     matchInputs:{
         left: "left",
+        left_: "left_", //keyup
         right: "right",
-        jump: "jump"
+        right_: "right_", //keyup
+        up: "up",
+        down: "down",
+        down_: "down_", //keyup
+        punch: "punch"
+    },
+    
+    playerStates: {
+        
+        normal: "normal",
+        ducked: "ducked",
+        jumping: "jumping",
+        punching: "punching"
     }
 }
 
@@ -384,7 +432,7 @@ var config = require('./../config');
 var gameloop = require('game-loop');
 
 //used on the client
-module.exports = function() {
+module.exports = function(game) {
 
     //private variables
 
@@ -392,9 +440,13 @@ module.exports = function() {
 
     var controller = {
 
-        addCommand: addCommand,
-
+        isLeftKeyDown: false,
+        isRightKeyDown: false,
+        isDownKeyDown: false,
+        
         commands: [],
+        
+        onCommand: onCommand,
 
         start: start,
 
@@ -402,7 +454,8 @@ module.exports = function() {
 
         inputUpdateLoopTick: inputUpdateLoopTick,
 
-        processCommands: processCommands
+        processCommands: processCommands,
+        addDownKeysToCommands: addDownKeysToCommands
     }
 
 
@@ -421,26 +474,47 @@ module.exports = function() {
 
     }
 
-    function addCommand(context) {
+    function onCommand(context) {
 
         var self = this;
+        
+        config.eventHandlers.onLog(context.event.keyIdentifier + " justdown:" + context.justDown + " isdown:" + context.isDown + " justup:" + context.justUp + " isup:" + context.isUp)
 
         switch (context.keyCode) {
-            case Phaser.Keyboard.LEFT:
-                self.commands.push(config.matchInputs.left);
-                break;
-            case Phaser.Keyboard.RIGHT:
-                self.commands.push(config.matchInputs.right);
-                break;
-            case Phaser.Keyboard.UP:
-                self.commands.push(config.matchInputs.jump);
-                break;
             case Phaser.Keyboard.DOWN:
-                self.commands.push(config.matchInputs.duck);
+                if(context.isDown)
+                    self.commands.push(config.matchInputs.down);
+                else
+                    self.commands.push(config.matchInputs.down_);
+                break;
+            case Phaser.Keyboard.SPACEBAR:
+                if(context.isDown)
+                    self.commands.push(config.matchInputs.punch);
                 break;
         }
     }
+    
+    /*
+    
+    function onUp(context) {
 
+        var self = this;
+        
+        config.eventHandlers.onLog(context.event.keyIdentifier + " justdown:" + context.justDown + " isdown:" + context.isDown + " justup:" + context.justUp + " isup:" + context.isUp)
+
+        switch (context.keyCode) {
+            case Phaser.Keyboard.LEFT:
+                self.commands.push(config.matchInputs.left_);
+                break;
+            case Phaser.Keyboard.RIGHT:
+                self.commands.push(config.matchInputs.right_);
+                break;
+            case Phaser.Keyboard.DOWN:
+                self.commands.push(config.matchInputs.duck_);
+                break;
+        }
+    }
+*/
     //private
 
     function stop() {
@@ -449,11 +523,13 @@ module.exports = function() {
     }
 
     function inputUpdateLoopTick() {
-
+        
         this.processCommands();
     }
 
     function processCommands() {
+        
+        this.addDownKeysToCommands();
 
         var commandCount = this.commands.length;
         if (commandCount > 0) {
@@ -462,6 +538,13 @@ module.exports = function() {
             this.commands = [];
         }
 
+    }
+    
+    function addDownKeysToCommands(){
+        
+        if(this.isDownKeyDown) this.commands.push(config.matchInputs.down);
+        if(this.isRightKeyDown) this.commands.push(config.matchInputs.right);
+        if(this.isLeftKeyDown) this.commands.push(config.matchInputs.left);
     }
 };
 

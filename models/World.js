@@ -110,6 +110,8 @@ module.exports = function(io) {
     }
     
     function removePlayer(id){
+        
+        config.eventHandlers.onLog("removing player " + id);
 
         for (var i = 0; i < 2; i++) {
         

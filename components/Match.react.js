@@ -1,5 +1,5 @@
 var React = require('react'),
-    config = require('./../config');
+    config = require('./../config'),
     Controller = require('./../models/Controller');
 
 module.exports = Match = React.createClass({
@@ -12,6 +12,18 @@ module.exports = Match = React.createClass({
     getSize: function() {
         return document.getElementById('surface').getBoundingClientRect();
     },
+    
+    translatePlayerState: function(state){
+        
+        switch(state){
+            
+            case config.playerStates.ducked:
+                return "duck";
+            case config.playerStates.punching:
+                return "punch";
+            default: return "1";
+        }
+    },
 
     preload: function() {
 
@@ -21,7 +33,7 @@ module.exports = Match = React.createClass({
         game.load.image('sky', 'assets/sky.png');
         game.load.image('ground', 'assets/platform.png');
         game.load.image('star', 'assets/star.png');
-        game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+        game.load.atlasJSONHash('dude', 'assets/dude.png', "assets/dude.json");
 
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         game.scale.windowConstraints = {
@@ -50,11 +62,12 @@ module.exports = Match = React.createClass({
         //setup players
 
         sprites.player1 = game.add.sprite(props.world.players[0].pos.x, props.world.players[0].pos.y, 'dude');
-        sprites.player1.frame = 5;
+        sprites.player1.frameName = "1";
 
 
         sprites.player2 = game.add.sprite(props.world.players[1].pos.x, props.world.players[1].pos.y, 'dude');
-        sprites.player2.frame = 0;
+        sprites.player2.frameName = "1";
+        sprites.player2.scale.x *= -1;
         
         //setup inputs
         
@@ -62,11 +75,30 @@ module.exports = Match = React.createClass({
         var keyboard = game.input.keyboard;
         
         var cursorKeys = keyboard.createCursorKeys();
-        cursorKeys.left.onDown.add(controller.addCommand, controller);
-        cursorKeys.right.onDown.add(controller.addCommand, controller);
-        cursorKeys.up.onDown.add(controller.addCommand, controller);
-        cursorKeys.down.onDown.add(controller.addCommand, controller);
         
+        //send jump command
+        cursorKeys.up.onDown.add(controller.onCommand, controller);
+        
+        //send duck command
+        cursorKeys.down.onDown.add(controller.onCommand, controller);
+        
+        //send duck_ command
+        cursorKeys.down.onUp.add(controller.onCommand, controller);
+        
+        
+        cursorKeys.left.onDown.add(function(){ controller.isLeftKeyDown = true; });
+        cursorKeys.right.onDown.add(function(){ controller.isRightKeyDown = true; });
+
+        
+        cursorKeys.left.onUp.add(function(){ controller.isLeftKeyDown = false; });
+        cursorKeys.right.onUp.add(function(){ controller.isRightKeyDown = false; });
+
+        //send punch command
+        var spaceKey = keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        spaceKey.onDown.add(controller.onCommand, controller);
+
+        
+        //start sending commands to the server
         controller.start();
 
     },
@@ -84,9 +116,11 @@ module.exports = Match = React.createClass({
 
             sprites.player1.x = this.matchUpdate.players[0].pos.x;
             sprites.player1.y = this.matchUpdate.players[0].pos.y;
+            sprites.player1.frameName = this.translatePlayerState(this.matchUpdate.players[0].state);
 
             sprites.player2.x = this.matchUpdate.players[1].pos.x;
             sprites.player2.y = this.matchUpdate.players[1].pos.y;
+            sprites.player2.frameName = this.translatePlayerState(this.matchUpdate.players[1].state);
             
             this.matchUpdate = null;
         }

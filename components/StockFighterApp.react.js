@@ -45,7 +45,7 @@ module.exports = StockFighterApp = React.createClass({
         
         socket.on(config.events.matchEnded, function(){
             self.setState({playerInfo: self.getInitialState().playerInfo});
-            socket.emit(config.events.identify, config.identifiers.controllerWithView);
+            //socket.emit(config.events.identify, config.identifiers.controllerWithView);
         })
         
         //event handler for general world updates

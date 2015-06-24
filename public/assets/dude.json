@@ -1,0 +1,36 @@
+{"frames": {
+
+"1":
+{
+	"frame": {"x":2,"y":2,"w":167,"h":209},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":167,"h":209},
+	"sourceSize": {"w":167,"h":209}
+},
+"duck":
+{
+	"frame": {"x":171,"y":2,"w":167,"h":209},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":167,"h":209},
+	"sourceSize": {"w":167,"h":209}
+},
+"punch":
+{
+	"frame": {"x":340,"y":2,"w":201,"h":205},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":201,"h":205},
+	"sourceSize": {"w":201,"h":205}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "dude.png",
+	"format": "RGBA8888",
+	"size": {"w":543,"h":213},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:e84f56ef1c7ebcdfaefb65c5a36a49fe:0509cea26972381acb246b245799cff7:91b0136f103a2ad004f02a846859646f$"
+}
+}

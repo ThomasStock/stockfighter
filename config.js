@@ -70,11 +70,25 @@ module.exports = {
     loops: {
         serverUpdateLoop: 30, // # of ms per frame for input/output processing on the server
         serverPhysicsLoop: 15, // # of ms
+        inputUpdateLoop: 30,
     },
     
     matchInputs:{
         left: "left",
+        left_: "left_", //keyup
         right: "right",
-        jump: "jump"
+        right_: "right_", //keyup
+        up: "up",
+        down: "down",
+        down_: "down_", //keyup
+        punch: "punch"
+    },
+    
+    playerStates: {
+        
+        normal: "normal",
+        ducked: "ducked",
+        jumping: "jumping",
+        punching: "punching"
     }
 }
