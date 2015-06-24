@@ -37,7 +37,7 @@ module.exports = function(io, world) {
 
         if (stateChanged) {
 
-            config.eventHandlers.onLog("emitting");
+            config.eventHandlers.onLog("emitting stateChanged");
             io.emit(config.events.matchUpdate, matchUpdate);
 
             stateChanged = false;
@@ -55,8 +55,8 @@ module.exports = function(io, world) {
         for (var i = 0; i < 2; i++) {
 
             (function(playerIndex) {
-                
-                if(world.players[i] == null) return;
+
+                if (world.players[i] == null) return;
 
                 var id = world.players[i].id;
                 var socket = io.sockets.connected[id];
@@ -91,9 +91,9 @@ module.exports = function(io, world) {
             //config.eventHandlers.onLog("pushed input " + input + " for player " + playerIndex);
         }
     }
-    
-    function canMoveLeftRight(player){
-        
+
+    function canMoveLeftRight(player) {
+
         return player.state == config.playerStates.normal;
     }
 
@@ -107,14 +107,15 @@ module.exports = function(io, world) {
         for (var i = 0; i < 2; i++) {
 
             var player = world.players[i];
+            var otherPlayer = i == 0 ? world.players[1] : world.players[0];
 
             if (!player) {
                 //config.eventHandlers.onLog("could not find player i");
                 continue;
             }
-            
+
             //punching is only 1 frame. Reset to normal if we were punching
-            if(player.state == config.playerStates.punching){
+            if (player.state == config.playerStates.punching) {
                 player.state = config.playerStates.normal;
                 stateChanged = true;
             }
@@ -130,47 +131,55 @@ module.exports = function(io, world) {
                 switch (input) {
 
                     case config.matchInputs.left:
-                        
-                        if(canMoveLeftRight(player)){
-                            
+
+                        if (canMoveLeftRight(player)) {
+
+                            player.viewDirection = "left";
                             player.pos.x -= 7;
                             stateChanged = true;
                         }
                         break;
 
                     case config.matchInputs.right:
-                        
-                        if(canMoveLeftRight(player)){
 
+                        if (canMoveLeftRight(player)) {
+
+                            player.viewDirection = "right";
                             player.pos.x += 7;
                             stateChanged = true;
                         }
                         break;
-                        
+
                     case config.matchInputs.down:
 
-                        if(player.state == config.playerStates.normal){
+                        if (player.state == config.playerStates.normal) {
 
                             player.state = config.playerStates.ducked;
                             stateChanged = true;
                         }
                         break;
-                        
+
                     case config.matchInputs.down_:
-                        
-                        if(player.state == config.playerStates.ducked){
+
+                        if (player.state == config.playerStates.ducked) {
 
                             player.state = config.playerStates.normal;
                             stateChanged = true;
                         }
                         break;
-                    
+
                     case config.matchInputs.punch:
 
-                        if(canPunch(player)){
-                            
+                        if (canPunch(player)) {
+
                             player.state = config.playerStates.punching;
                             stateChanged = true;
+
+                            if (isHit(player, otherPlayer, "punch")) {
+
+                                otherPlayer.health -= 5;
+                            }
+
                         }
                         break;
                 }
@@ -187,9 +196,27 @@ module.exports = function(io, world) {
 
         //config.eventHandlers.onLog("serverUpdateLoopTick: " + (endTime.getTime() - startTime.getTime()))
     }
-    
-    function canPunch(player){
+
+    function canPunch(player) {
         return player.state == config.playerStates.normal;
+    }
+
+    function isHit(player, otherPlayer, action) {
+
+        switch (action) {
+            case "punch":
+
+                if (otherPlayer.state != config.playerStates.normal)
+                    return false;
+                    
+                if(Math.abs(otherPlayer.pos.x - player.pos.x) < 100){
+                    return true;
+                }
+                
+                return false;
+
+                break;
+        }
     }
 
     function stop() {
@@ -210,8 +237,8 @@ module.exports = function(io, world) {
             onUpdate();
         }
     }
-    
-    
+
+
     function reset() {
 
         frameCount = 0;
@@ -221,14 +248,20 @@ module.exports = function(io, world) {
             x: 150,
             y: 500
         };
-        
+        world.players[0].viewDirection = "right";
+
         world.players[1].pos = {
             x: 724,
             y: 500
         };
+        world.players[1].viewDirection = "left";
         
-        world.players[0].state = config.playerStates.normal;
-        world.players[1].state = config.playerStates.normal;
+        //for each player
+        for (var i = 0; i < 2; i++) {
+            
+            world.players[i].state = config.playerStates.normal;
+            world.players[i].health = 100;
+        }
 
         serverUpdateLoop = null;
 
@@ -248,11 +281,10 @@ module.exports = function(io, world) {
                     y: world.players[i].pos.y
                 }
             };
-            
+
             matchUpdate.players[i].state = world.players[i].state;
+            matchUpdate.players[i].health = world.players[i].health;
 
         }
-
     }
-
 };

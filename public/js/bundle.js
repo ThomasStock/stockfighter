@@ -69,6 +69,7 @@ module.exports = Match = React.createClass({displayName: "Match",
     game: null, //Phaser.Game
     matchUpdate: null, //object contains the latest information received from the server
     sprites: {}, //container for sprites that must be updated
+    texts: {}, //container for game texts that must be updated
 
 
     getSize: function() {
@@ -109,6 +110,7 @@ module.exports = Match = React.createClass({displayName: "Match",
         var self = this;
         var game = self.game;
         var sprites = self.sprites;
+        var texts = self.texts;
         var props = self.props;
         
         //set up environment
@@ -121,14 +123,21 @@ module.exports = Match = React.createClass({displayName: "Match",
         ground.height = 120;
         ground.width = game.world.width;
         
+        var player1HealthText = game.add.text(50, 50, "player 1 health:");
+        texts.player1HealthValue = game.add.text(50, 100, "100%");
+        
+        var player2HealthText = game.add.text(game.world.width - 270, 50, "player 2 health:");
+        texts.player2HealthValue = game.add.text(game.world.width - 140, 100, "100%");
+        
         //setup players
 
         sprites.player1 = game.add.sprite(props.world.players[0].pos.x, props.world.players[0].pos.y, 'dude');
         sprites.player1.frameName = "1";
-
+        sprites.player1.anchor.setTo(.5, 0); //so it flips around its middle
 
         sprites.player2 = game.add.sprite(props.world.players[1].pos.x, props.world.players[1].pos.y, 'dude');
         sprites.player2.frameName = "1";
+        sprites.player2.anchor.setTo(.5, 0); //so it flips around its middle
         sprites.player2.scale.x *= -1;
         
         //setup inputs
@@ -175,16 +184,26 @@ module.exports = Match = React.createClass({displayName: "Match",
             config.eventHandlers.onLog("handling matchUpdate " + this.matchUpdate.players[0].pos.x)
             
             var sprites = this.sprites;
+            var texts = this.texts;
+            var data = this.matchUpdate;
 
-            sprites.player1.x = this.matchUpdate.players[0].pos.x;
-            sprites.player1.y = this.matchUpdate.players[0].pos.y;
-            sprites.player1.frameName = this.translatePlayerState(this.matchUpdate.players[0].state);
+            sprites.player1.x = data.players[0].pos.x;
+            sprites.player1.y = data.players[0].pos.y;
+            sprites.player1.frameName = this.translatePlayerState(data.players[0].state);
+            texts.player1HealthValue.text = data.players[0].health + " %";
 
-            sprites.player2.x = this.matchUpdate.players[1].pos.x;
-            sprites.player2.y = this.matchUpdate.players[1].pos.y;
-            sprites.player2.frameName = this.translatePlayerState(this.matchUpdate.players[1].state);
-            
-            this.matchUpdate = null;
+            if(data.players[0].viewDirection == "left" && sprites.player1.scale.x > 0) sprites.player1.scale.x *= -1;
+            else  if(data.players[0].viewDirection == "right" && sprites.player1.scale.x < 0) sprites.player1.scale.x *= -1;
+
+            sprites.player2.x = data.players[1].pos.x;
+            sprites.player2.y = data.players[1].pos.y;
+            sprites.player2.frameName = this.translatePlayerState(data.players[1].state);
+            texts.player2HealthValue.text = data.players[1].health + " %";
+
+            if(data.players[1].viewDirection == "left" && sprites.player2.scale.x > 0) sprites.player2.scale.x *= -1;
+            else  if(data.players[1].viewDirection == "right" && sprites.player2.scale.x < 0) sprites.player2.scale.x *= -1;
+
+            data = null;
         }
     },
 
