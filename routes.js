@@ -1,5 +1,5 @@
-var React = require('react'),
-    io = require('socket.io');
+var React = require('react');
+var Server = require('./modules/Server');
 
 module.exports = {
 
@@ -7,13 +7,6 @@ module.exports = {
 
         return function(req, res) {
             
-/*            // Render React to a string, passing in our fetched tweets
-            var markup = React.renderToString(
-                StockFighterApp({
-                    worldState: worldState
-                })
-            );*/
-
             // Render our 'home' template
             res.render('home', {
                 markup: "", // Pass rendered react markup
@@ -27,10 +20,6 @@ module.exports = {
 
         return function(req, res) {
 
-/*            // Render React to a string, passing in our fetched tweets
-            var markup = React.renderToString(
-                ControllerApp()
-            );*/
 
             // Render our 'home' template
             res.render('home', {

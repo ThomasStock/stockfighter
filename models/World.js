@@ -5,6 +5,8 @@ var Match = require('./Match');
 module.exports = function(io) {
 
     var world = {
+        
+        connections
 
         players: [],
 
