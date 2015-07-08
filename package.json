@@ -18,15 +18,17 @@
   "devDependencies": {
     "browserify": "^10.2.3",
     "envify": "^3.4.0",
+    "eslint": "^0.24.0",
+    "eslint-plugin-react": "^2.6.4",
     "reactify": "^1.1.1",
     "watchify": "^3.2.1"
   },
   "scripts": {
-    "watch": "watchify app.js -o public/js/bundle.js -v",
-    "watch-play": "watchify play.js -o public/js/play-bundle.js -v",
+    "watchify": "watchify app.js -o public/js/bundle.js -v",
     "browserify": "browserify app.js | uglifyjs > public/js/bundle.js",
     "build": "npm run browserify ",
-    "start": "npm install"
+    "start": "npm install",
+    "lint": "eslint *.js modules/*.js components/*.js > lintoutput.log"
   },
   "author": "Thomas Stock",
   "browserify": {
@@ -34,5 +36,20 @@
       "reactify",
       "envify"
     ]
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "node": true
+    },
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "plugins": [
+      "react"
+    ],
+    "no-trailing-spaces": [2, {
+      "skipBlankLines": true
+    }]
   }
 }
