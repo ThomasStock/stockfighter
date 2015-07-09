@@ -36,20 +36,5 @@
       "reactify",
       "envify"
     ]
-  },
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "ecmaFeatures": {
-      "jsx": true
-    },
-    "plugins": [
-      "react"
-    ],
-    "no-trailing-spaces": [2, {
-      "skipBlankLines": true
-    }]
   }
 }

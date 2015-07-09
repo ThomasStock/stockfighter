@@ -43,12 +43,11 @@ function initializeHttpServer(app) {
 function setupRoutes(app) {
 
     // Index Route
-    app.get("/", routes.index(server));
+    app.get("/", routes.index());
 
     // Play Route
     app.get("/play", routes.play());
 }
-
 
 var app = express();
 
@@ -56,8 +55,6 @@ setupRoutes(app);
 
 var httpServer = initializeHttpServer(app);
 
-var io = require("socket.io")(httpServer);
+io = require("socket.io")(httpServer);
 
-server.bla("bleh");
-
-server.initialize(io);
+server.initialize();

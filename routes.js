@@ -1,30 +1,18 @@
 "use strict";
 
 var server = require("./modules/server");
+var serverState = server.state;
 
 module.exports = {
 
-    index: function (worldState) {
+    index: function () {
         return function (req, res) {
-
-            server.bla("rouiters");
 
             // Render our "home" template
             res.render("home", {
-                markup: "", // Pass rendered react markup
-                state: JSON.stringify(worldState) // Pass current state to client side
+                state: JSON.stringify(serverState) // Pass current state to client side
             });
 
-        };
-    },
-    play: function () {
-        return function (req, res) {
-            // Render our "home" template
-            res.render("home", {
-                markup: "", // Pass rendered react markup
-                state: JSON.stringify({}),
-                layout: "play"
-            });
         };
     }
 };

@@ -3,8 +3,9 @@
 var config = require("./../config");
 var _ = require("underscore");
 
+var io;
 var state = {};
-var games = [];
+var players = [];
 
 function updateState(){
     
@@ -16,7 +17,9 @@ function updateState(){
     state.games = _.map(games, getGameState);
 }
 
-function initialize(){
+function initialize(ioToSet){
+    
+    io = ioToSet;
     
     updateState();
 }
