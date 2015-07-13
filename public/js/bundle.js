@@ -256,22 +256,25 @@ module.exports = Match = React.createClass({displayName: "Match",
 });
 
 },{"./../config":4,"./../models/Controller":5,"react":166}],3:[function(require,module,exports){
+"use strict";
+
 var React = require('react');
 var Match = require('./Match.react.js');
 var InfoScreen = require('./InfoScreen.react.js');
 var config = require('./../config');
 var cookie = require('react-cookie');
 
-module.exports = StockFighterApp = React.createClass({displayName: "StockFighterApp",
+module.exports = React.createClass({displayName: "exports",
     
     getInitialState: function() {
 
         return {
             playerInfo: {
-                playerIndex: null,
-                isAssigned: false
+               state: config.playerInfoStates.inLobby
             },
-            world: this.props.world
+            lobby: {
+                rooms: []
+            }
         };
     },
 
@@ -292,23 +295,22 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
 
         socket = io.connect();
         
+        var socketIdentifyData = {
+            identifier: config.identifiers.player,
+            playerConnectionData: {
+                sessionId: "bka"
+            }
+        }
+        
         //identify ourself to the server
-        socket.emit(config.events.identify, config.identifiers.controllerWithView);
+        socket.emit(config.events.identify, socketIdentifyData);
         
         //when the server asks us to log something
         socket.on(config.events.log, config.eventHandlers.onLog);
         
-        //when the server identified us
-        socket.on(config.events.identified, self.onIdentified);
-        
-        socket.on(config.events.matchEnded, function(){
-            self.setState({playerInfo: self.getInitialState().playerInfo});
-            //socket.emit(config.events.identify, config.identifiers.controllerWithView);
-        })
-        
         //event handler for general world updates
-        socket.on(config.events.worldUpdate, function(world){ 
-            self.setState({world: world});
+        socket.on(config.events.lobbyUpdate, function(lobby){ 
+            self.setState({lobby: lobby});
         });
     },
 
@@ -322,15 +324,14 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
     // Render the component
     render: function() {
         
-        var world = this.state.world;
         var playerInfo = this.state.playerInfo;
 
         
-        if(world.matchState == config.matchStates.waitingForPlayers){
+        if(playerInfo.state == config.playerInfoStates.inLobby){
             
             return (
                 React.createElement("div", {className: "stockfighter"}, 
-                    React.createElement(InfoScreen, {world: world, playerInfo: playerInfo})
+                    React.createElement(Lobby, null)
                 )
             );
         }
@@ -351,12 +352,13 @@ module.exports = StockFighterApp = React.createClass({displayName: "StockFighter
 });
 
 },{"./../config":4,"./InfoScreen.react.js":1,"./Match.react.js":2,"react":166,"react-cookie":10}],4:[function(require,module,exports){
-var dateFormat = require('dateformat');
+"use strict";
+
+var dateFormat = require("dateformat");
 
 module.exports = {
 
     events: {
-        
         identify: "identify",
         identified: "identified",
         log: "log",
@@ -368,65 +370,48 @@ module.exports = {
         matchEnded: "matchEnded",
         matchInput: "matchInput",
         matchUpdate: "matchUpdate",
-        worldUpdate: "worldUpdate"
+        lobbyUpdate: "lobbyUpdate"
     },
-    
     identifiers: {
-        
-        viewer: "viewer",
-        controller: "controller",
-        controllerWithView: "controllerWithView"
+        player: "player"
     },
-    
     eventHandlers: {
-        
-        onLog: function(data){
-            
+        onLog: function (data) {
             var now = new Date();
-            
             console.log(dateFormat(now, "isoDate") + " " + dateFormat(now, "isoTime") + ": " + data);
         }
     },
-    
     matchStates: {
-      
-      waitingForPlayers: "waitingForPlayers",
-      matchStarting: "matchStarting",
-      matchStarted: "matchStarted",
-      matchEnded: "matchEnded"
+        waitingForPlayers: "waitingForPlayers",
+        matchStarting: "matchStarting",
+        matchStarted: "matchStarted",
+        matchEnded: "matchEnded"
     },
-    
-
-    
+    playerInfoStates:{
+      connected: "connected",  
+      inLobby: "inLobby",  
+    },
     playUrl: "https://stockfighter-tstock.c9.io/play",
-    
     colors: {
-        
         player1Color: "FF0000",
         player2Color: "0000FF"
     },
-    
     runmodes: {
-        
-        waitOnPlayers : "waitOnPlayers",    //normal mode, wait for 2 players before starting game
-        waitOn1Player: "waitOn1Player",     //1 player needed, other is mocked
-        waitOnViewer: "waitOnViewer"        //no controls possible, go straight to the match screen
+        waitOnPlayers: "waitOnPlayers", //normal mode, wait for 2 players before starting game
+        waitOn1Player: "waitOn1Player", //1 player needed, other is mocked
+        waitOnViewer: "waitOnViewer" //no controls possible, go straight to the match screen
     },
-    
     runmode: "waitOnPlayers",
-    
     game: {
         width: 1024,
         height: 768
     },
-    
     loops: {
         serverUpdateLoop: 30, // # of ms per frame for input/output processing on the server
         serverPhysicsLoop: 15, // # of ms
-        inputUpdateLoop: 30,
+        inputUpdateLoop: 30
     },
-    
-    matchInputs:{
+    matchInputs: {
         left: "left",
         left_: "left_", //keyup
         right: "right",
@@ -436,15 +421,13 @@ module.exports = {
         down_: "down_", //keyup
         punch: "punch"
     },
-    
     playerStates: {
-        
         normal: "normal",
         ducked: "ducked",
         jumping: "jumping",
         punching: "punching"
     }
-}
+};
 
 },{"dateformat":7}],5:[function(require,module,exports){
 var config = require('./../config');
@@ -20868,16 +20851,16 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":39}],167:[function(require,module,exports){
-var React = require('react');
-var StockFighterApp = require('./components/StockFighterApp.react');
+var React = require("react");
+var StockFighterApp = require("./components/StockFighterApp.react");
 
 // Snag the initial state that was passed from the server side
-var initialState = JSON.parse(document.getElementById('initial-state').innerHTML);
+var initialState = JSON.parse(document.getElementById("initial-state").innerHTML);
 
 // Render the components, picking up where react left off on the server
 React.render(
-  React.createElement(StockFighterApp, {world: initialState}), 
-  document.getElementById('react-app')
+  React.createElement(StockFighterApp, {world: initialState}),
+  document.getElementById("react-app")
 );
 
 },{"./components/StockFighterApp.react":3,"react":166}]},{},[167]);

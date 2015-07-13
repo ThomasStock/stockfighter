@@ -3,23 +3,20 @@
 var config = require("./../config");
 var _ = require("underscore");
 
-var io;
 var state = {};
 var players = [];
 
 function updateState(){
     
-    function getGameState(game)
+    function getPlayerState(player)
     {
-        return game.state;
+        return player.state;
     }
     
-    state.games = _.map(games, getGameState);
+    state.players = _.map(players, getPlayerState);
 }
 
-function initialize(ioToSet){
-    
-    io = ioToSet;
+function initialize(){
     
     updateState();
 }

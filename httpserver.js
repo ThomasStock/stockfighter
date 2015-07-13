@@ -5,13 +5,13 @@ var express = require("express"),
     http = require("http"),
     bodyParser = require("body-parser"),
     routes = require("./routes"),
-    server = require("./modules/server"),
+    lobby = require("./modules/lobby"),
     path = require("path"),
     config = require("./config");
 
 
 function initializeHttpServer(app) {
-
+    
     var port = process.env.PORT || 8080;
 
     // Set handlebars as the templating engine
@@ -27,6 +27,9 @@ function initializeHttpServer(app) {
     app.use(bodyParser.urlencoded({
         extended: false
     }));
+    
+    //app.use(express.cookieParser());
+    //app.use(express.session({secret: '1234567890QWERTY'}));
 
     // parse application/json
     app.use(bodyParser.json());
@@ -36,7 +39,7 @@ function initializeHttpServer(app) {
 
     // Fire this bitch up (start our server)
     return http.createServer(app).listen(port, function() {
-        config.eventhandlers.onLog("Express server listening on port " + port);
+        config.eventHandlers.onLog("Express server listening on port " + port);
     });
 }
 
@@ -44,9 +47,6 @@ function setupRoutes(app) {
 
     // Index Route
     app.get("/", routes.index());
-
-    // Play Route
-    app.get("/play", routes.play());
 }
 
 var app = express();
@@ -55,6 +55,6 @@ setupRoutes(app);
 
 var httpServer = initializeHttpServer(app);
 
-io = require("socket.io")(httpServer);
+global.io = require("socket.io")(httpServer);
 
-server.initialize();
+lobby.initialize();

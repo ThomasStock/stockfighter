@@ -16,12 +16,10 @@ module.exports = {
         matchEnded: "matchEnded",
         matchInput: "matchInput",
         matchUpdate: "matchUpdate",
-        worldUpdate: "worldUpdate"
+        lobbyUpdate: "lobbyUpdate"
     },
     identifiers: {
-        viewer: "viewer",
-        controller: "controller",
-        controllerWithView: "controllerWithView"
+        player: "player"
     },
     eventHandlers: {
         onLog: function (data) {
@@ -34,6 +32,10 @@ module.exports = {
         matchStarting: "matchStarting",
         matchStarted: "matchStarted",
         matchEnded: "matchEnded"
+    },
+    playerInfoStates:{
+      connected: "connected",  
+      inLobby: "inLobby",  
     },
     playUrl: "https://stockfighter-tstock.c9.io/play",
     colors: {
