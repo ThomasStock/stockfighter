@@ -6,8 +6,9 @@ var _ = require("underscore");
 var games = [];
 var players = [];
 
-function pushState() {
-    
+
+function getState() {
+
     var state = {};
 
     function getGameState(game) {
@@ -15,11 +16,21 @@ function pushState() {
     }
 
     state.games = _.map(games, getGameState);
+    
+    return state;
+}
+
+function pushState() {
+
+    var state = getState();
+
+    //todo: push state
+    
 }
 
 function handlePlayerConnect(socket, playerConnectionData) {
 
-    
+
 }
 
 function handleSocketIdentify(socket, socketIdentifyData) {
@@ -49,10 +60,9 @@ function initialize() {
 
     listenForConnections();
 
-    updateState();
 }
 
 module.exports = {
     initialize: initialize,
-    state: state
+    getState: getState
 };

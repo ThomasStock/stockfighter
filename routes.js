@@ -1,7 +1,6 @@
 "use strict";
 
-var server = require("./modules/server");
-var serverState = server.state;
+var lobby = require("./modules/lobby");
 
 module.exports = {
 
@@ -10,7 +9,7 @@ module.exports = {
             
             // Render our "home" template
             res.render("home", {
-                state: JSON.stringify(serverState) // Pass current state to client side
+                state: JSON.stringify(lobby.getState()) // Pass current state to client side
             });
 
         };

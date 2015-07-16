@@ -33,9 +33,11 @@ module.exports = {
         matchStarted: "matchStarted",
         matchEnded: "matchEnded"
     },
-    playerInfoStates:{
-      connected: "connected",  
-      inLobby: "inLobby",  
+    playerInfoStates: {
+        notConnected: "notConnected",
+        connecting: "connecting",
+        connected: "connected",
+        inLobby: "inLobby"
     },
     playUrl: "https://stockfighter-tstock.c9.io/play",
     colors: {

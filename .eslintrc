@@ -15,6 +15,7 @@
         }]
     },
     "globals": {
-        "io": true
+        "io": true,
+        "socket": true
     }
 }
