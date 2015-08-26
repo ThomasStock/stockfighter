@@ -39,7 +39,7 @@ function initializeHttpServer(app) {
 
     // Fire this bitch up (start our server)
     return http.createServer(app).listen(port, function() {
-        config.eventHandlers.onLog("Express server listening on port " + port);
+        config.eventHandlers.onLog("Expresss server listening on port " + port);
     });
 }
 

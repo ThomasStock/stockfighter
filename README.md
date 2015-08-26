@@ -1,7 +1,12 @@
 # StockFighter
 
 ## Running
+
+#### On c9.io platform
 Rightclick `httpserver.js` and click `Run`
+
+#### On generic node.js servers
+Run `node httpserver.js`
 
 ## Bundling
 Have `npm run watchify` running while coding. 
