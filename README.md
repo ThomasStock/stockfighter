@@ -1,11 +1,14 @@
 # stockfighter
+## running
+Rightclick `httpserver.js` and click `Run`
+
 ## bundling
 Have `npm run watchify` running while coding. 
 - bundles app.js and its dependencies to public/js/bundle.js
 - starts a watch process that rebundles upon changing a file.
 
 ## committing
-`./gitpush.sh`
+Run `./gitpush.sh`
 
 ## linting
 Run `npm run lint`.
