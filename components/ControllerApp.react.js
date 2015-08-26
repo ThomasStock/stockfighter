@@ -100,6 +100,8 @@ module.exports = ControllerApp = React.createClass({
         
         //set event handler for when the server tells us the match has started
         socket.on(config.events.matchEnded, this.onMatchEnded);
+        
+        
 
         //identify ourself to the server
         socket.emit(config.events.identify, config.identifiers.controller);
