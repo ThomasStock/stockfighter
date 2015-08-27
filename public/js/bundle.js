@@ -80,7 +80,7 @@ module.exports = React.createClass({displayName: "exports",
             var socketIdentifyData = {
                 identifier: config.identifiers.player,
                 playerConnectionData: {
-                    sessionId: "bka"
+                    name: this.state.playerInfo
                 }
             };
 
@@ -90,7 +90,7 @@ module.exports = React.createClass({displayName: "exports",
             //when the server asks us to log something
             socket.on(config.events.log, config.eventHandlers.onLog);
 
-            //event handler for general world updates
+            //event handler for lobby updates
             socket.on(config.events.lobbyUpdate, function (lobby) {
                 self.setState({
                     lobby: lobby

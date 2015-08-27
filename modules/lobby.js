@@ -16,7 +16,7 @@ function getState() {
     }
 
     state.games = _.map(games, getGameState);
-    
+
     return state;
 }
 
@@ -25,11 +25,30 @@ function pushState() {
     var state = getState();
 
     //todo: push state
+
+}
+
+function isPlayerNameAvailable(name) {
+
+    var isNameAlreadyUsed = _.any(players, function (player) {
+        return player.name === name;
+    });
     
+    return !isNameAlreadyUsed;
 }
 
 function handlePlayerConnect(socket, playerConnectionData) {
 
+    var playerName = playerConnectionData.name;
+    if (!playerName){
+        
+    }else{
+        if(!isPlayerNameAvailable(name)){
+            return true;
+            
+            
+        }
+    }
 
 }
 

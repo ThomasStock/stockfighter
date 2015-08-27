@@ -20,6 +20,8 @@
     "envify": "^3.4.0",
     "eslint": "^0.24.0",
     "eslint-plugin-react": "^2.6.4",
+    "jasmine": "^2.3.2",
+    "nodemon": "^1.4.1",
     "reactify": "^1.1.1",
     "watchify": "^3.2.1"
   },
@@ -28,7 +30,8 @@
     "browserify": "browserify app.js | uglifyjs > public/js/bundle.js",
     "build": "npm run browserify ",
     "start": "npm install",
-    "lint": "eslint *.js modules/*.js components/*.js > lintoutput.log"
+    "lint": "eslint httpserver.js config.js app.js routes.js modules/*.js components/*.js > lintoutput.log",
+    "test": "jasmine"
   },
   "author": "Thomas Stock",
   "browserify": {
