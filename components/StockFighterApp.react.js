@@ -70,7 +70,7 @@ module.exports = React.createClass({
         window.socket = io.connect();
 
         //event handler for general world updates
-        socket.on("connection", function () {
+        socket.on("connect", function () {
 
             //tell self we are connected
             self.setState({
@@ -80,13 +80,14 @@ module.exports = React.createClass({
             });
 
             //identify ourself to the server
-
             var socketIdentifyData = {
                 identifier: config.identifiers.player,
                 playerConnectionData: {
                     name: this.state.playerInfo.name
                 }
             };
+            
+            config.eventHandlers.onLog("identifying player");
 
             //identify ourself to the server
             socket.emit(config.events.identify, socketIdentifyData);
@@ -96,6 +97,7 @@ module.exports = React.createClass({
 
             //when the server tells us we have identified
             socket.on(config.events.identified, function (args) {
+                config.eventHandlers.onLog("identified!");
                 self.setName(args.name);
             });
 

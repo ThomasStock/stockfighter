@@ -6,6 +6,7 @@ var Player = require("./player");
 
 var games = [];
 var players = [];
+var io;
 
 
 function getState() {
@@ -54,7 +55,7 @@ function getUniqueName(name) {
             i++;
         } while (!isPlayerNameAvailable(name));
     }
-    
+
     return name;
 }
 
@@ -88,7 +89,9 @@ function handleSocketIdentify(socket, socketIdentifyData) {
 
 }
 
-function listenForConnections() {
+function listenForConnections(ioServer) {
+
+    io = ioServer;
 
     //when anyone connects to socket.io, set up some event listeners for that socket
     io.on("connection", function (socket) {
@@ -113,6 +116,13 @@ module.exports = {
     },
     set players(value) {
         players = value;
+    },
+
+    get io() {
+        return io;
+    },
+    set io(value) {
+        io = value;
     },
 
     reset: reset,

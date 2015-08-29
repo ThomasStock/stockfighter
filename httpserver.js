@@ -55,7 +55,7 @@ setupRoutes(app);
 
 var httpServer = initializeHttpServer(app);
 
-global.io = require("socket.io")(httpServer);
+var io = require("socket.io")(httpServer);
 
 lobby.reset();
-lobby.listenForConnections();
+lobby.listenForConnections(io);
