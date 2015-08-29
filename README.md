@@ -25,8 +25,8 @@ Keep lintoutput.log open to see updated lint results.
 You can also run 'eslint yourfile.js' to easily see lint results of yourfile.
 
 ## Testing
-Run `npm run test` or `jasmine`.
+Run `npm run test` or `jasmine` or `node runtests.js`.
 
 ## Automatic testing and linting
-Run `nodemon -x "npm test"`
+Run `nodemon -x "node runtests.js"`
 Run `nodemon -x "npm lint"`

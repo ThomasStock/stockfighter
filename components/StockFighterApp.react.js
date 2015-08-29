@@ -12,24 +12,30 @@ module.exports = React.createClass({
 
         return {
             playerInfo: {
-                state: config.playerInfoStates.notConnected,
+                state: config.playerInfoStates.connecting,
                 name: cookie.load("playerName")
             },
             lobby: {
                 rooms: []
-            }
+            },
+            isChoosingName: false
         };
     },
 
-    resetName: function (e) {
+    handleResetName: function (e) {
         e.preventDefault();
 
+        this.resetName();
+    },
+    resetName: function () {
         cookie.remove("playerName");
-        
         this.setState({
             playerInfo: {
                 name: undefined
             }
+        });
+        this.setState({
+            isChoosingName: true
         });
     },
 
@@ -39,20 +45,19 @@ module.exports = React.createClass({
         //entered in the input field
         var newName = this.refs.nameInput.getDOMNode().value;
 
+        this.setName(newName);
+
+    },
+    setName: function (name) {
         this.setState({
             playerInfo: {
-                name: newName
+                name: name
             }
         });
-        cookie.save("playerName", newName);
-    },
-
-    onIdentified: function (playerIndex) {
-
-        var newState = this.state.playerInfo;
-        newState.playerIndex = playerIndex;
-        newState.isIdentified = true;
-        this.setState(newState);
+        cookie.save("playerName", name);
+        this.setState({
+            isChoosingName: false
+        });
     },
 
     // Called one, before initial rendering on the server
@@ -70,16 +75,16 @@ module.exports = React.createClass({
             //tell self we are connected
             self.setState({
                 playerInfo: {
-                    state: config.playerInfoStates.connected
+                    state: config.playerInfoStates.identifying
                 }
             });
 
-            //idenitify ourself to the server
+            //identify ourself to the server
 
             var socketIdentifyData = {
                 identifier: config.identifiers.player,
                 playerConnectionData: {
-                    name: this.state.playerInfo
+                    name: this.state.playerInfo.name
                 }
             };
 
@@ -89,6 +94,20 @@ module.exports = React.createClass({
             //when the server asks us to log something
             socket.on(config.events.log, config.eventHandlers.onLog);
 
+            //when the server tells us we have identified
+            socket.on(config.events.identified, function (args) {
+                self.setName(args.name);
+            });
+
+/*            //when the server tells us we have succesfully joined the lobby
+            socket.on(config.events.playerStateChanged, function (newState) {
+                self.setState({
+                    playerInfo: {
+                        state: newState
+                    }
+                });
+            });
+*/
             //event handler for lobby updates
             socket.on(config.events.lobbyUpdate, function (lobby) {
                 self.setState({
@@ -108,9 +127,10 @@ module.exports = React.createClass({
     // Render the component
     render: function () {
 
-        var playerInfo = this.state.playerInfo;
+        var state = this.state;
+        var playerInfo = state.playerInfo;
 
-        if (!playerInfo.name) {
+        if (state.isChoosingName) {
             return (
                 <div className="ask-name-form">
                     <form onSubmit={this.handleNameSubmit}>

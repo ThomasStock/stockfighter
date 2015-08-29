@@ -23,6 +23,7 @@
     "jasmine": "^2.3.2",
     "nodemon": "^1.4.1",
     "reactify": "^1.1.1",
+    "rewire": "^2.3.4",
     "watchify": "^3.2.1"
   },
   "scripts": {
@@ -31,6 +32,8 @@
     "build": "npm run browserify ",
     "start": "npm install",
     "lint": "eslint httpserver.js config.js app.js routes.js modules/*.js components/*.js > lintoutput.log",
+    "lint-server": "eslint httpserver.js config.js app.js routes.js modules/*.js spec/*js > lintoutput.log",
+    "lint-react": "eslint app.js components/*.js > lintoutput.log",
     "test": "jasmine"
   },
   "author": "Thomas Stock",

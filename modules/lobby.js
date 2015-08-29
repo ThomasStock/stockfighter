@@ -2,6 +2,7 @@
 
 var config = require("./../config");
 var _ = require("underscore");
+var Player = require("./player");
 
 var games = [];
 var players = [];
@@ -33,23 +34,47 @@ function isPlayerNameAvailable(name) {
     var isNameAlreadyUsed = _.any(players, function (player) {
         return player.name === name;
     });
-    
+
     return !isNameAlreadyUsed;
 }
 
-function handlePlayerConnect(socket, playerConnectionData) {
+function getUniqueName(name) {
 
-    var playerName = playerConnectionData.name;
-    if (!playerName){
-        
-    }else{
-        if(!isPlayerNameAvailable(name)){
-            return true;
-            
-            
-        }
+    if (!name) {
+        //assign name Freshmeat (N) if no name was supplied
+        name = "Freshmeat";
     }
 
+    var rootName = name;
+
+    if (!isPlayerNameAvailable(name)) {
+        var i = 1;
+        do {
+            name = rootName + " (" + i + ")";
+            i++;
+        } while (!isPlayerNameAvailable(name));
+    }
+    
+    return name;
+}
+
+function handlePlayerIdentify(socket, playerConnectionData) {
+
+    var playerName = playerConnectionData.name;
+    playerName = getUniqueName(playerName);
+
+    var player = new Player();
+    player.socket = socket;
+    player.state = config.playerInfoStates.inLobby;
+    player.name = playerName;
+    players.push(player);
+
+    var infoForClient = {
+        name: player.name,
+        state: player.state
+    };
+
+    socket.emit(config.events.identified, infoForClient);
 }
 
 function handleSocketIdentify(socket, socketIdentifyData) {
@@ -57,7 +82,7 @@ function handleSocketIdentify(socket, socketIdentifyData) {
     //check which type of client connected
     switch (socketIdentifyData.identifier) {
     case config.identifiers.player:
-        handlePlayerConnect(socketIdentifyData.playerConnectionData);
+        handlePlayerIdentify(socket, socketIdentifyData.playerConnectionData);
         break;
     }
 
@@ -75,13 +100,22 @@ function listenForConnections() {
     });
 }
 
-function initialize() {
+function reset() {
 
-    listenForConnections();
-
+    games = [];
+    players = [];
 }
 
 module.exports = {
-    initialize: initialize,
-    getState: getState
+
+    get players() {
+        return players;
+    },
+    set players(value) {
+        players = value;
+    },
+
+    reset: reset,
+    getState: getState,
+    listenForConnections: listenForConnections
 };

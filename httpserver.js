@@ -57,4 +57,5 @@ var httpServer = initializeHttpServer(app);
 
 global.io = require("socket.io")(httpServer);
 
-lobby.initialize();
+lobby.reset();
+lobby.listenForConnections();

@@ -1,7 +1,8 @@
 {
     "env": {
         "browser": true,
-        "node": true
+        "node": true,
+        "jasmine": true
     },
     "ecmaFeatures": {
         "jsx": true
@@ -12,7 +13,8 @@
     "rules": {
         "no-trailing-spaces": [2, {
             "skipBlankLines": true
-        }]
+        }],
+        "no-underscore-dangle": 0
     },
     "globals": {
         "io": true,

@@ -8,15 +8,14 @@ module.exports = {
         identify: "identify",
         identified: "identified",
         log: "log",
-        player1Joined: "player1Joined",
-        player2Joined: "player2Joined",
         matchStarting: "matchStarting",
         matchStarted: "matchStarted",
         requestEndMatch: "requestEndMatch",
         matchEnded: "matchEnded",
         matchInput: "matchInput",
         matchUpdate: "matchUpdate",
-        lobbyUpdate: "lobbyUpdate"
+        lobbyUpdate: "lobbyUpdate",
+        playerStateChanged: "playerStateChanged"
     },
     identifiers: {
         player: "player"
@@ -36,7 +35,7 @@ module.exports = {
     playerInfoStates: {
         notConnected: "notConnected",
         connecting: "connecting",
-        connected: "connected",
+        identifying: "identifying",
         inLobby: "inLobby"
     },
     playUrl: "https://stockfighter-tstock.c9.io/play",
