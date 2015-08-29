@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 describe("lobby:", function () {
 
@@ -9,7 +9,7 @@ describe("lobby:", function () {
     var ioServer;
     var lobby = require("../modules/lobby");
     var config = require("../config");
-    var enableDestroy = require('server-destroy');
+    var enableDestroy = require("server-destroy");
     var httpServer;
     var socket;
 
@@ -30,7 +30,7 @@ describe("lobby:", function () {
                 done();
             });
         });
-        
+
         enableDestroy(httpServer);
 
     });
@@ -42,84 +42,104 @@ describe("lobby:", function () {
         }
 
         lobby.reset();
-        
+
         httpServer.destroy();
 
         done();
     });
 
-    it("sends identified back event when a player identifies", function (done) {
+    describe("when a player identifies:", function () {
 
-        var socketIdentifyData = {
-            identifier: config.identifiers.player,
-            playerConnectionData: {
+        it("sends identified back event", function (done) {
+
+            var socketIdentifyData = {
+                identifier: config.identifiers.player,
+                playerConnectionData: {
+                    name: "foo"
+                }
+            };
+
+            var expectedInfoForClient = {
+                name: socketIdentifyData.playerConnectionData.name,
+                state: config.playerInfoStates.inLobby
+            };
+            
+            socket.on(config.events.identified, function (args) {
+                expect(args.name).toBe(expectedInfoForClient.name);
+                expect(args.state).toBe(expectedInfoForClient.state);
+                done();
+            });
+
+            socket.emit(config.events.identify, socketIdentifyData);
+        });
+
+        it("sends lobby state back", function (done) {
+
+            var socketIdentifyData = {
+                identifier: config.identifiers.player,
+                playerConnectionData: {
+                    name: "foo"
+                }
+            };
+            
+            socket.on(config.events.lobbyUpdate, function (args) {
+                expect(args.players[0].name).toBe("foo");
+                done();
+            });
+
+            socket.emit(config.events.identify, socketIdentifyData);
+        });
+
+        it("assignes name Freshmeat when the player is unnamed", function (done) {
+
+            var socketIdentifyData = {
+                identifier: config.identifiers.player,
+                playerConnectionData: {
+                    name: undefined
+                }
+            };
+
+            var expectedInfoForClient = {
+                name: "Freshmeat",
+                state: config.playerInfoStates.inLobby
+            };
+
+            socket.on(config.events.identified, function (args) {
+                expect(args.name).toBe(expectedInfoForClient.name);
+                expect(args.state).toBe(expectedInfoForClient.state);
+                done();
+            });
+
+            socket.emit(config.events.identify, socketIdentifyData);
+        });
+
+        it("adds an (N) to the name if it is already in use", function (done) {
+
+            lobby.players = [{
                 name: "foo"
-            }
-        };
+            }, {
+                name: "bar"
+            }];
 
-        var expectedInfoForClient = {
-            name: socketIdentifyData.playerConnectionData.name,
-            state: config.playerInfoStates.inLobby
-        };
+            var socketIdentifyData = {
+                identifier: config.identifiers.player,
+                playerConnectionData: {
+                    name: "foo"
+                }
+            };
 
-        socket.on(config.events.identified, function (args) {
-            expect(args.name).toBe(expectedInfoForClient.name);
-            expect(args.state).toBe(expectedInfoForClient.state)
-            done();
+            var expectedInfoForClient = {
+                name: "foo (1)",
+                state: config.playerInfoStates.inLobby
+            };
+
+            socket.on(config.events.identified, function (args) {
+                expect(args.name).toBe(expectedInfoForClient.name);
+                expect(args.state).toBe(expectedInfoForClient.state);
+                done();
+            });
+
+            socket.emit(config.events.identify, socketIdentifyData);
         });
-
-        socket.emit(config.events.identify, socketIdentifyData);
-    });
-
-    it("assignes name Freshmeat when an unnamed player identifies", function (done) {
-
-        var socketIdentifyData = {
-            identifier: config.identifiers.player,
-            playerConnectionData: {
-                name: undefined
-            }
-        };
-
-        var expectedInfoForClient = {
-            name: "Freshmeat",
-            state: config.playerInfoStates.inLobby
-        };
-
-        socket.on(config.events.identified, function (args) {
-            expect(args.name).toBe(expectedInfoForClient.name);
-            expect(args.state).toBe(expectedInfoForClient.state)
-            done();
-        });
-
-        socket.emit(config.events.identify, socketIdentifyData);
-    });
-    
-    it("adds an (N) to the name if it is already in use", function (done) {
-        
-        lobby.players = [{
-            name: "foo"
-        }, {
-            name: "bar"
-        }];
-
-        var socketIdentifyData = {
-            identifier: config.identifiers.player,
-            playerConnectionData: {
-                name: "foo"
-            }
-        };
-
-        var expectedInfoForClient = {
-            name: "foo (1)",
-            state: config.playerInfoStates.inLobby
-        };
-
-        socket.on(config.events.identified, function (args) {
-            expect(args.name).toBe(expectedInfoForClient.name);
-            expect(args.state).toBe(expectedInfoForClient.state)
-            done();
-        });
-
-        socket.emit(config.events.identify, socketIdentifyData);
     });
 });

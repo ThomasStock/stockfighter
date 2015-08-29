@@ -1,6 +1,6 @@
 "use strict";
 
-var config = require("./../config");
+/*var config = require("./../config");
 var _ = require("underscore");
 
 var state = {};
@@ -25,3 +25,4 @@ module.exports = {
     initialize: initialize,
     state: state
 };
+*/

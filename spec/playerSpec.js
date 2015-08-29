@@ -4,13 +4,6 @@ describe("a player", function () {
 
     var rewire = require("rewire");
     var Player = rewire("../modules/player");
-    var config = require("../config");
-    var player;
-
-    beforeEach(function () {
-
-        player = new Player();
-    });
 
     it("should be able to use private variables in its functions", function () {
         

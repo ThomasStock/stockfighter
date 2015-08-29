@@ -22,4 +22,6 @@ var myReporter = {
 
 //jasmine.addReporter(myReporter);
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
+
 jasmine.execute();

@@ -16,18 +16,24 @@ function getState() {
     function getGameState(game) {
         return game.state;
     }
+    
+    function getPlayerState(player) {
+        return {
+            name: player.name,
+            state: player.state
+        }
+    }
 
     state.games = _.map(games, getGameState);
+    state.players = _.map(players, getPlayerState);
 
     return state;
 }
 
-function pushState() {
-
-    var state = getState();
-
-    //todo: push state
-
+function broadcastLobbyUpdate(){
+    
+    var lobbyState = getState();
+    io.emit(config.events.lobbyUpdate, lobbyState);
 }
 
 function isPlayerNameAvailable(name) {
@@ -76,6 +82,8 @@ function handlePlayerIdentify(socket, playerConnectionData) {
     };
 
     socket.emit(config.events.identified, infoForClient);
+    
+    broadcastLobbyUpdate();
 }
 
 function handleSocketIdentify(socket, socketIdentifyData) {
@@ -126,6 +134,6 @@ module.exports = {
     },
 
     reset: reset,
-    getState: getState,
+
     listenForConnections: listenForConnections
 };
