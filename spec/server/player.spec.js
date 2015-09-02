@@ -3,7 +3,7 @@
 describe("a player", function () {
 
     var rewire = require("rewire");
-    var Player = rewire("../modules/player");
+    var Player = rewire("./../../server/player");
 
     it("should be able to use private variables in its functions", function () {
         

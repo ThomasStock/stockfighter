@@ -1,5 +1,7 @@
-var React = require('react');
-var config = require('./../config');
+"use strict";
+
+var React = require("react");
+var config = require("./../config");
 
 module.exports = React.createClass({
 
@@ -12,6 +14,6 @@ module.exports = React.createClass({
     // Render the component
     render: function() {
         
-        return "lobby";
+        return "";
     }
 });

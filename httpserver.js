@@ -5,7 +5,7 @@ var express = require("express"),
     http = require("http"),
     bodyParser = require("body-parser"),
     routes = require("./routes"),
-    lobby = require("./modules/lobby"),
+    lobby = require("./server/lobby"),
     path = require("path"),
     config = require("./config");
 

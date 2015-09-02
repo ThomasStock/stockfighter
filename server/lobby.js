@@ -21,7 +21,7 @@ function getState() {
         return {
             name: player.name,
             state: player.state
-        }
+        };
     }
 
     state.games = _.map(games, getGameState);

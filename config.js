@@ -48,6 +48,9 @@ module.exports = {
         waitOn1Player: "waitOn1Player", //1 player needed, other is mocked
         waitOnViewer: "waitOnViewer" //no controls possible, go straight to the match screen
     },
+    modes: {
+        singlePlayer: "singlePlayer"
+    },
     runmode: "waitOnPlayers",
     game: {
         width: 1024,

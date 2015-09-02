@@ -7,8 +7,8 @@ describe("lobby:", function () {
     var app = require("express")();
     var http = require("http");
     var ioServer;
-    var lobby = require("../modules/lobby");
-    var config = require("../config");
+    var lobby = require("../../server/lobby");
+    var config = require("../../config");
     var enableDestroy = require("server-destroy");
     var httpServer;
     var socket;
@@ -50,7 +50,7 @@ describe("lobby:", function () {
 
     describe("when a player identifies:", function () {
 
-        it("sends identified back event", function (done) {
+        it("sends identified event back to client", function (done) {
 
             var socketIdentifyData = {
                 identifier: config.identifiers.player,
@@ -73,7 +73,7 @@ describe("lobby:", function () {
             socket.emit(config.events.identify, socketIdentifyData);
         });
 
-        it("sends lobby state back", function (done) {
+        it("sends lobby state to every connected player", function (done) {
 
             var socketIdentifyData = {
                 identifier: config.identifiers.player,
@@ -84,6 +84,7 @@ describe("lobby:", function () {
             
             socket.on(config.events.lobbyUpdate, function (args) {
                 expect(args.players[0].name).toBe("foo");
+                expect(args.players[0].state).toBe(config.playerInfoStates.inLobby);
                 done();
             });
 

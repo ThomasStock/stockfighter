@@ -3,6 +3,7 @@
 var React = require("react");
 /*var Match = require("./Match.react.js");
 var InfoScreen = require("./InfoScreen.react.js");*/
+var Lobby = require("./Lobby.react.js");
 var config = require("./../config");
 var cookie = require("react-cookie");
 
@@ -49,10 +50,10 @@ module.exports = React.createClass({
 
     },
     setName: function (name) {
+        var playerInfo = this.state.playerInfo;
+        playerInfo.name = name;
         this.setState({
-            playerInfo: {
-                name: name
-            }
+            playerInfo: playerInfo
         });
         cookie.save("playerName", name);
         this.setState({
@@ -83,10 +84,10 @@ module.exports = React.createClass({
             var socketIdentifyData = {
                 identifier: config.identifiers.player,
                 playerConnectionData: {
-                    name: this.state.playerInfo.name
+                    name: self.state.playerInfo.name
                 }
             };
-            
+
             config.eventHandlers.onLog("identifying player");
 
             //identify ourself to the server
@@ -99,17 +100,12 @@ module.exports = React.createClass({
             socket.on(config.events.identified, function (args) {
                 config.eventHandlers.onLog("identified!");
                 self.setName(args.name);
-            });
-
-/*            //when the server tells us we have succesfully joined the lobby
-            socket.on(config.events.playerStateChanged, function (newState) {
+                self.state.playerInfo.state = config.playerInfoStates.inLobby;
                 self.setState({
-                    playerInfo: {
-                        state: newState
-                    }
+                    playerInfo: self.state.playerInfo
                 });
             });
-*/
+
             //event handler for lobby updates
             socket.on(config.events.lobbyUpdate, function (lobby) {
                 self.setState({
@@ -132,28 +128,50 @@ module.exports = React.createClass({
         var state = this.state;
         var playerInfo = state.playerInfo;
 
-        if (state.isChoosingName) {
-            return (
-                <div className="ask-name-form">
-                    <form onSubmit={this.handleNameSubmit}>
-                        <span>Please enter your name</span>
-                        <input type="text" ref="nameInput" />
-                        <button>Enter lobby</button>
-                    </form>
-                </div>
-            );
+        var playerInfoDivContent;
+        switch (playerInfo.state) {
+            case config.playerInfoStates.connecting:
+                playerInfoDivContent = <div className="playerInfo">Connecting...</div>;
+                break;
+            case config.playerInfoStates.identifying:
+                playerInfoDivContent = <div className="playerInfo">Identifying...</div>;
+                break;
+            case config.playerInfoStates.inLobby:
+                playerInfoDivContent = <div className="playerInfo">{playerInfo.name} <a href="#" onClick={this.resetName}>change name</a></div>;
+                break;
+            default:
+                playerInfoDivContent = "error: dont know how to render infostate " + playerInfo.state;
         }
+        
+        var mainDivContent = function() {
+            switch(playerInfo.state){
+                case config.playerInfoStates.inLobby:
+                    return "";
+                default:
+                    return "";
+            }
+        };
 
-        if (playerInfo.state === config.playerInfoStates.inLobby) {
-
-            return (
-                <div className="stockfighter">
-                    <Lobby />
+        return (
+            <div id="stockfighter-player">
+                <div id="player-info">
+                    {playerInfoDivContent}
                 </div>
-            );
-        }
+                <div id="main">{mainDivContent()}</div>
+            </div>
+        );
+
+        /*
+        if (!state.isChoosingName) {
+            <div className="ask-name-form">
+                <form onSubmit={this.handleNameSubmit}>
+                    <span>Please enter your name</span>
+                    <input type="text" ref="nameInput" />
+                    <button>Enter lobby</button>
+                </form>
+            </div>
+        }*/
 
 
-        return <div>stockfighter didnt know what view to render. {playerInfo.name} <a href="#" onClick={this.resetName}>change name</a></div>;
     }
 });
