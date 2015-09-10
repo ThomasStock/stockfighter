@@ -1,8 +1,7 @@
 "use strict";
 
 var React = require("react");
-/*var Match = require("./Match.react.js");
-var InfoScreen = require("./InfoScreen.react.js");*/
+var Player = require("./Player.react.js");
 var config = require("./../config");
 
 module.exports = React.createClass({
@@ -33,7 +32,8 @@ module.exports = React.createClass({
         
         switch(mode){
             case config.modes.singlePlayer:
-                return <player/>;
+                return <Player />;
+                
         }
 
         return <div>Cannot render mode { mode }</div>

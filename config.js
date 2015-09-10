@@ -15,7 +15,9 @@ module.exports = {
         matchInput: "matchInput",
         matchUpdate: "matchUpdate",
         lobbyUpdate: "lobbyUpdate",
-        playerStateChanged: "playerStateChanged"
+        playerStateChanged: "playerStateChanged",
+        createGame: "createGame",
+        gameCreated: "gameCreated"
     },
     identifiers: {
         player: "player"

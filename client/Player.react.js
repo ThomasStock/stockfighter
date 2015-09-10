@@ -3,7 +3,7 @@
 var React = require("react");
 /*var Match = require("./Match.react.js");
 var InfoScreen = require("./InfoScreen.react.js");*/
-var Lobby = require("./Lobby.react.js");
+var Lobby = require("./Lobby.react");
 var config = require("./../config");
 var cookie = require("react-cookie");
 
@@ -14,10 +14,12 @@ module.exports = React.createClass({
         return {
             playerInfo: {
                 state: config.playerInfoStates.connecting,
-                name: cookie.load("playerName")
+                name: cookie.load("playerName"),
+                id: cookie.load("playerId");
             },
             lobby: {
-                rooms: []
+                games: [],
+                players: []
             },
             isChoosingName: false
         };
@@ -60,6 +62,15 @@ module.exports = React.createClass({
             isChoosingName: false
         });
     },
+    
+    setId: function (id) {
+        var playerInfo = this.state.playerInfo;
+        playerInfo.id = id;
+        this.setState({
+            playerInfo: playerInfo
+        });
+        cookie.save("playerId", id);
+    },
 
     // Called one, before initial rendering on the server
     componentWillMount: function () {
@@ -84,7 +95,8 @@ module.exports = React.createClass({
             var socketIdentifyData = {
                 identifier: config.identifiers.player,
                 playerConnectionData: {
-                    name: self.state.playerInfo.name
+                    name: self.state.playerInfo.name,
+                    id: self.state.playerInfo.id
                 }
             };
 
@@ -100,6 +112,7 @@ module.exports = React.createClass({
             socket.on(config.events.identified, function (args) {
                 config.eventHandlers.onLog("identified!");
                 self.setName(args.name);
+                self.setId(args.id);
                 self.state.playerInfo.state = config.playerInfoStates.inLobby;
                 self.setState({
                     playerInfo: self.state.playerInfo
@@ -137,7 +150,7 @@ module.exports = React.createClass({
                 playerInfoDivContent = <div className="playerInfo">Identifying...</div>;
                 break;
             case config.playerInfoStates.inLobby:
-                playerInfoDivContent = <div className="playerInfo">{playerInfo.name} <a href="#" onClick={this.resetName}>change name</a></div>;
+                playerInfoDivContent = <div className="playerInfo">{playerInfo.name} ({playerInfo.id}) <a href="#" onClick={this.resetName}>change name</a></div>;
                 break;
             default:
                 playerInfoDivContent = "error: dont know how to render infostate " + playerInfo.state;
@@ -146,7 +159,7 @@ module.exports = React.createClass({
         var mainDivContent = function() {
             switch(playerInfo.state){
                 case config.playerInfoStates.inLobby:
-                    return "";
+                    return <Lobby {...state.lobby} />;
                 default:
                     return "";
             }

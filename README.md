@@ -29,4 +29,4 @@ Run `npm run test` or `jasmine` or `node runtests.js`.
 
 ## Automatic testing and linting
 Run `nodemon -x "node runtests.js"`
-Run `nodemon -x "npm lint"`
+Run `nodemon -x "npm run lint"`
