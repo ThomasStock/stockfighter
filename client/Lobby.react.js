@@ -1,7 +1,7 @@
 "use strict";
 
 var React = require("react");
-var config = require("./../config");
+//var config = require("./../config");
 
 module.exports = React.createClass({
 
@@ -17,8 +17,6 @@ module.exports = React.createClass({
         var props = this.props;
         var games = props.games;
         var players = props.players;
-        
-        debugger;
         
         return (
             <div className="lobby">

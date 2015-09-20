@@ -121,11 +121,7 @@ describe("lobby:", function () {
 
     });
     
-    describe("when a player disconnects", function(){
-       
-    });
-
-    xdescribe("when a player creates a match", function () {
+/*    xdescribe("when a player creates a match", function () {
 
         it("sends gameCreated event back to client", function (done) {
 
@@ -143,5 +139,5 @@ describe("lobby:", function () {
             socket.emit(config.events.identify, socketIdentifyData);
         });
 
-    })
+    })*/
 });

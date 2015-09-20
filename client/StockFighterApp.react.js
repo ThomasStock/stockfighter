@@ -36,6 +36,6 @@ module.exports = React.createClass({
                 
         }
 
-        return <div>Cannot render mode { mode }</div>
+        return <div>Cannot render mode { mode }</div>;
     }
 });

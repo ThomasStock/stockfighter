@@ -15,7 +15,7 @@ module.exports = React.createClass({
             playerInfo: {
                 state: config.playerInfoStates.connecting,
                 name: cookie.load("playerName"),
-                id: cookie.load("playerId");
+                id: cookie.load("playerId")
             },
             lobby: {
                 games: [],
@@ -27,9 +27,9 @@ module.exports = React.createClass({
 
     handleResetName: function (e) {
         e.preventDefault();
-
         this.resetName();
     },
+    
     resetName: function () {
         cookie.remove("playerName");
         this.setState({

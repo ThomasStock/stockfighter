@@ -33,7 +33,7 @@
     "browserify": "browserify app.js | uglifyjs > public/js/bundle.js",
     "build": "npm run browserify ",
     "start": "npm install",
-    "lint": "eslint httpserver.js config.js app.js routes.js server/*.js client/*.js > lintoutput.log",
+    "lint": "eslint httpserver.js config.js app.js routes.js server/*.js client/*.js spec/server/*.js > lintoutput.log",
     "lint-server": "eslint httpserver.js config.js app.js routes.js server/*.js spec/*js > lintoutput.log",
     "lint-react": "eslint app.js components/*.js > lintoutput.log",
     "test": "jasmine"

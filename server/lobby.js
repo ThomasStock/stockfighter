@@ -36,20 +36,11 @@ function broadcastLobbyUpdate() {
     io.emit(config.events.lobbyUpdate, lobbyState);
 }
 
-function isPlayerNameAvailable(name) {
-
-    var isNameAlreadyUsed = _.any(players, function (player) {
-        return player.name === name;
-    });
-
-    return !isNameAlreadyUsed;
-}
-
 function handlePlayerIdentify(socket, playerConnectionData) {
 
     function getRandomName() {
         var firstParts = ["Amazing", "Fluffy", "Super", "Derpy", "Glorious", "Horny", "Smelly", "Inflatable", "Much"];
-        var secondParts = ["Cat", "Doge", "Wow", "Nerd", "Armpit", "Derp", "Jackass", "Plant", "Spider", "Scorpion", "Headbanger", "Dildo", "Athlete", "Memer", "CamGirl"];
+        var secondParts = ["Cat", "Doge", "Nerd", "Armpit", "Derp", "Jackass", "Plant", "Spider", "Scorpion", "Headbanger", "Dildo", "Athlete", "Memer", "CamGirl"];
 
         var firstRandom = firstParts[Math.floor(Math.random() * firstParts.length)];
         var secondRandom = secondParts[Math.floor(Math.random() * secondParts.length)];
@@ -61,26 +52,17 @@ function handlePlayerIdentify(socket, playerConnectionData) {
         function s4() {
             return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
         }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+        return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
 
     function getPlayerById(id) {
-        var player = _.find(players, function (player) {
-            return player.id == id;
-        });
+        var player = _.find(players, function (p) { return p.id === id; });
         return player;
     }
 
-    var playerName = playerConnectionData.name;
-    if (!playerName) {
-        playerName = getRandomName();
-    }
-
-    var playerId = playerConnectionData.id;
-    if (!playerId) {
-        playerId = createGuid();
-    }
-
+    var playerName = playerConnectionData.name || getRandomName();
+    var playerId = playerConnectionData.id || createGuid();
+    
     var player = getPlayerById(playerId);
     if (!player) {
         //player with that ID never played before
@@ -126,7 +108,7 @@ function listenForConnections(ioServer) {
             handleSocketIdentify(socket, data);
         });
 
-        socket.on('disconnect', function () {
+        socket.on("disconnect", function () {
 
         });
     });
